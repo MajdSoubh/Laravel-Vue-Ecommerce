@@ -48,8 +48,11 @@ The online store application enables administrators to add products and view rep
 ## Screen Shots
 
 <p align="center">
-<img src="screenshots/dashboard.PNG" alt="Dashboard" width="50%" >
-<img src="screenshots/edit_survey.PNG" alt="Edit Survey" width="50%" >
-<img src="screenshots/surveys.PNG" alt="Surveys" width="50%" >
-<img src="screenshots/submission.PNG" alt="Submissions" width="50%" >
+<img src="screenshots/Dashboard.PNG" alt="Dashboard" width="50%" >
+<img src="screenshots/Home.PNG" alt="Store Homepage" >
+<img src="screenshots/Cart.PNG" alt="Cart" width="50%" >
+<img src="screenshots/Checkout.PNG" alt="Checkout" width="50%" >
+<img src="screenshots/Edit-Product.PNG" alt="Edit Product" width="50%" >
+<img src="screenshots/Orders.PNG" alt="Orders" width="50%" >
+<img src="screenshots/Reports.PNG" alt="Reports" width="50%" >
 </p>

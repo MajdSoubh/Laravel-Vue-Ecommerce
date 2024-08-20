@@ -1,0 +1,8 @@
+<IfModule mod_headers.c>
+    <FilesMatch "\.(bmp|cur|gif|ico|jpeg|png|svgz?|webp|pdf|eot|otf|tt[cf]|woff2?)$">
+         Header set Cross-Origin-Resource-Policy 'cross-origin'
+         Header set Access-Control-Allow-Origin "*"
+         Header set Access-Control-Allow-Headers "*"
+     </FilesMatch>
+ </IfModule>
+ 

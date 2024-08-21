@@ -53,33 +53,17 @@ Route::group([
 {
 
     // Category
-    Route::get('/category/{category}', [AdminCategoryController::class, 'show']);
-    Route::get('/category', [AdminCategoryController::class, 'index']);
-    Route::post('/category', [AdminCategoryController::class, 'store']);
-    Route::post('/put/category/{category}', [AdminCategoryController::class, 'update']);
-    Route::post('/delete/category/{category}', [AdminCategoryController::class, 'destroy']);
+    Route::apiResource('/category', AdminCategoryController::class);
     Route::get('categories/tree', [AdminCategoryController::class, 'getAsTree']);
 
     // Product
-    Route::get('/product/{product}', [AdminProductController::class, 'show']);
-    Route::get('/product', [AdminProductController::class, 'index']);
-    Route::post('/product', [AdminProductController::class, 'store']);
-    Route::post('/put/product/{product}', [AdminProductController::class, 'update']);
-    Route::post('/delete/product/{product}', [AdminProductController::class, 'destroy']);
+    Route::apiResource('/product', AdminProductController::class);
 
     // User
-    Route::get('/user/{user}', [UserController::class, 'show']);
-    Route::get('/user', [UserController::class, 'index']);
-    Route::post('/user', [UserController::class, 'store']);
-    Route::post('/put/user/{user}', [UserController::class, 'update']);
-    Route::post('/delete/user/{user}', [UserController::class, 'destroy']);
+    Route::apiResource('/user', UserController::class);
 
     // Order
-    Route::get('/order/{order}', [AdminOrderController::class, 'show']);
-    Route::get('/order', [AdminOrderController::class, 'index']);
-    Route::post('/order', [AdminOrderController::class, 'store']);
-    Route::post('/put/order/{order}', [AdminOrderController::class, 'update']);
-    Route::post('/delete/order/{order}', [AdminOrderController::class, 'destroy']);
+    Route::apiResource('/order', AdminOrderController::class);
 
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index']);
@@ -114,7 +98,7 @@ Route::group([
 {
     Route::get('/cart', [CartController::class, 'getCurrentUserCart']);
     Route::post('/cart', [CartController::class, 'setCart']);
-    Route::post('/delete/cart/{item}', [CartController::class, 'delete']);
+    Route::delete('/cart/{item}', [CartController::class, 'delete']);
     Route::apiResource('/order', UserOrderController::class);
     Route::post('/checkout/{order}', [CheckoutController::class, 'checkoutOrder']);
     Route::post('/checkout', [CheckoutController::class, 'checkout']);
@@ -127,10 +111,11 @@ Route::group([
     Route::get("/customer/details", [UserProfileController::class, 'getDetails']);
 });
 Route::get('/category', [UserCategoryController::class, 'index']);
-Route::post('/put/cart', [CartController::class, 'updateCart'])->withoutMiddleware('auth');
-Route::get('/product', [UserProductController::class, 'index'])->withoutMiddleware('auth');;
-Route::get('/product/{product}', [UserProductController::class, 'show'])->withoutMiddleware('auth');;
+Route::put('/cart', [CartController::class, 'updateCart']);
+Route::get('/product', [UserProductController::class, 'index']);
+Route::get('/product/{product}', [UserProductController::class, 'show']);
 Route::post('/payment/success', [CheckoutController::class, 'success']);
+
 Route::get('/seed', function ()
 {
     return Artisan::call('db:seed');

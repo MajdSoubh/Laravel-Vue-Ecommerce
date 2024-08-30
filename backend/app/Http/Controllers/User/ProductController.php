@@ -10,29 +10,35 @@ use Illuminate\Database\Eloquent\Builder;
 
 class ProductController extends Controller
 {
+
     public function index()
     {
         $search = request('search', '');
         $perPage = request('per_page', '10');
         $categories = request('categories', false);
-        $products = Product::published()->where('title', 'like', "%{$search}%")->whereHas('categories', function (Builder $query) use ($categories)
-        {
-            // Return only activated category's  products
-            $query = $query->where('active', true);
-
-            // If no specific categories are selected return the query
-            if (!$categories) return $query;
-
-            // Else reutrn only selected ones.
-            return $query->whereIn('name', $categories)->orWhereHas('mainCategory', function (Builder $query) use ($categories)
+        $products = Product::published()
+            ->where('title', 'like', "%{$search}%")
+            ->when($categories, function ($query) use ($categories)
             {
-                // Return only activated category's  products
-                $query = $query->where('active', true);
+                return $query->whereHas('categories', function (Builder $query) use ($categories)
+                {
+                    // Return only activated category's products
+                    $query->where('active', true);
 
+                    // Else return only selected ones.
+                    return $query->whereIn('name', $categories)
+                        ->orWhereHas('mainCategory', function (Builder $query) use ($categories)
+                        {
+                            // Return only activated category's products
+                            $query->where('active', true);
 
-                return $query->whereIn('name', $categories);
-            });
-        })->orderBy('created_at', 'desc')->paginate($perPage);
+                            return $query->whereIn('name', $categories);
+                        });
+                });
+            })
+            ->orderBy('created_at', 'desc')
+            ->paginate($perPage);
+
 
 
 

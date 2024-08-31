@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
+use Illuminate\Database\Eloquent\Builder;
 
 class Product extends Model
 {
@@ -24,9 +25,9 @@ class Product extends Model
             ->saveSlugsTo('slug');
     }
 
-    public static function published()
+    public function scopePublished(Builder $query)
     {
-        return self::query()->where('published', true);
+        return $query->where('published', true);
     }
 
     public function createdBy()

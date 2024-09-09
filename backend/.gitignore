@@ -4,6 +4,8 @@
 /public/hot
 /public/storage
 /storage/*.key
+/storage/debugbar
+/public/vendor/
 /vendor
 .env
 .env.backup

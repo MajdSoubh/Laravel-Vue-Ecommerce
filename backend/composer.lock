@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "74c79bc763338e42c5050c0e60b0e7f9",
+    "content-hash": "0e54de6039143077736a799465ef66f2",
     "packages": [
         {
             "name": "brick/math",
@@ -1878,6 +1878,59 @@
                 }
             ],
             "time": "2024-01-28T23:22:08+00:00"
+        },
+        {
+            "name": "maso/treeify",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/MajdSoubh/Treeify.git",
+                "reference": "7abce2733f0d73390c5300ba8999e3439c51188e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/MajdSoubh/Treeify/zipball/7abce2733f0d73390c5300ba8999e3439c51188e",
+                "reference": "7abce2733f0d73390c5300ba8999e3439c51188e",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/collections": "^8|^9|^10|^11",
+                "php": "7.4|^8.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Maso\\Treeify\\Providers\\ServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Maso\\Treeify\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Majd Soubh",
+                    "email": "majdsoubh53@gmail.com"
+                }
+            ],
+            "description": "Laravel package allows you to convert flat collections of models into hierarchical tree structures, simplifying parent-child relationships management.",
+            "homepage": "https://github.com/majdsoubh/treeify",
+            "keywords": [
+                "build-tree",
+                "treeify"
+            ],
+            "support": {
+                "issues": "https://github.com/MajdSoubh/Treeify/issues",
+                "source": "https://github.com/MajdSoubh/Treeify/tree/v1.0.0"
+            },
+            "time": "2024-09-02T17:04:55+00:00"
         },
         {
             "name": "monolog/monolog",
@@ -7877,6 +7930,78 @@
                 }
             ],
             "time": "2024-02-02T06:10:47+00:00"
+        },
+        {
+            "name": "spatie/laravel-web-tinker",
+            "version": "1.9.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/spatie/laravel-web-tinker.git",
+                "reference": "89b8aad509bddea495ab629e12930a38744141e6"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/spatie/laravel-web-tinker/zipball/89b8aad509bddea495ab629e12930a38744141e6",
+                "reference": "89b8aad509bddea495ab629e12930a38744141e6",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/cookie": "^10.0|^11.0",
+                "illuminate/session": "^10.0|^11.0",
+                "illuminate/support": "^10.0|^11.0",
+                "laravel/tinker": "^2.0",
+                "php": "^8.2"
+            },
+            "require-dev": {
+                "orchestra/testbench": "^8.0|^9.0",
+                "phpunit/phpunit": "^9.0|^10.5"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Spatie\\WebTinker\\WebTinkerServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Spatie\\WebTinker\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Freek Van der Herten",
+                    "email": "freek@spatie.be",
+                    "homepage": "https://spatie.be",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Artisan Tinker in your browser",
+            "homepage": "https://github.com/spatie/laravel-web-tinker",
+            "keywords": [
+                "Tinker",
+                "debug",
+                "development",
+                "laravel",
+                "spatie",
+                "web-tinker"
+            ],
+            "support": {
+                "issues": "https://github.com/spatie/laravel-web-tinker/issues",
+                "source": "https://github.com/spatie/laravel-web-tinker/tree/1.9.0"
+            },
+            "funding": [
+                {
+                    "url": "https://spatie.be/open-source/support-us",
+                    "type": "custom"
+                }
+            ],
+            "time": "2024-03-02T05:41:00+00:00"
         },
         {
             "name": "symfony/yaml",

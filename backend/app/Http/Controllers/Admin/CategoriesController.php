@@ -101,6 +101,6 @@ class CategoriesController extends Controller
 
     public function getAsTree()
     {
-        return  CategoryTreeResource::collection(Category::getAsTree(1));
+        return  CategoryTreeResource::collection(Category::treeify());
     }
 }

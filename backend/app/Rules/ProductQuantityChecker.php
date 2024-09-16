@@ -30,8 +30,11 @@ class ProductQuantityChecker implements ValidationRule
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         $product = Product::find($this->productId);
-        if (!$product) return;
-        if ($product->quantity < $this->requestedQuantity)
+        if (!$product)
+        {
+            $fail('The requested product is not available');
+        }
+        else  if ($product->quantity < $this->requestedQuantity)
         {
             $fail('The requested quantity is not available');
         }

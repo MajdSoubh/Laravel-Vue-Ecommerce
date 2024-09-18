@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\User;
 
 use App\Enums\HttpStatusCode;
+use App\Events\Notify;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\Profile\UpdateDetailsRequest;
 use App\Http\Requests\User\Profile\UpdatePasswordRequest;
@@ -30,7 +31,7 @@ class ProfileController extends Controller
         $user->password = $data['new_password'];
         $user->update();
 
-        return response()->json(['message' => "The password has been updated"], HttpStatusCode::OK->value);
+        Notify::dispatch("The password has been updated", 'success');
     }
 
     public function getCountries()
@@ -58,7 +59,7 @@ class ProfileController extends Controller
         ]);
         $user->update();
 
-        return response()->json(['message' => "User details has been updated"], HttpStatusCode::OK->value);
+        Notify::dispatch("User details has been updated", 'success');
     }
     public function getDetails()
     {

@@ -6,6 +6,8 @@
 /storage/*.key
 /storage/debugbar
 /public/vendor/
+/public/images/
+/public/null
 /vendor
 .env
 .env.backup

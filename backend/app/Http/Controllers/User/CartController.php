@@ -3,9 +3,13 @@
 namespace App\Http\Controllers\User;
 
 use App\Enums\HttpStatusCode;
+
+use App\Events\Cart\ItemUpdated;
+use App\Events\Notify;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\Cart\StoreRequest;
 use App\Http\Requests\User\Cart\UpdateRequest;
+use App\Models\Product;
 use Illuminate\Support\Facades\Auth;
 
 class CartController extends Controller
@@ -35,10 +39,11 @@ class CartController extends Controller
             }
             else
             {
-                $user->cart()->create(['product_id' => $item['product_id'], 'quantity' => $item['quantity']]);
+                $cartItem =  $user->cart()->create(['product_id' => $item['product_id'], 'quantity' => $item['quantity']]);
             }
         }
-        return response()->json(['message' => 'Cart has been updated successfully'], HttpStatusCode::OK->value);
+
+        Notify::dispatch("The shopping cart has been stored successfully.", 'success', $cartItem->toArray());
     }
 
     public function updateCart(UpdateRequest $request)
@@ -46,30 +51,35 @@ class CartController extends Controller
         $productId = $request->input('product_id');
         $quantity = $request->input('quantity');
 
+        // Retrieve the product.
+        $product = Product::select(['id', 'title', 'price'])->whereId($productId)->first();
 
         // If user is authenticated update his cart
         /** @var \App\Models\User $user */
-        $user = auth()->user();
+        $user = auth('sanctum')->user();
 
         if ($user)
         {
-            $cart = $user->cart()->where('product_id', $productId)->first();
-            // return dd($user->cart()->get());
+            $cartItem = $user->cart()->where('product_id', $productId)->first();
+
             // If the Product already exists on the user's cart update it's quantity.
-            if ($cart)
+            if ($cartItem)
             {
-                $cart->quantity = $quantity;
-                $cart->update();
+                $cartItem->quantity = $quantity;
+                $cartItem->update();
             }
             else
             {
-                $cart =  $user->cart()->create($request->validated());
+                $cartItem =  $user->cart()->create($request->validated());
             }
-            return response()->json(['message' => 'The cart has been updated', 'cart' => $cart], HttpStatusCode::OK->value);
+
+            Notify::dispatch("{$product->title} quantity has been updated successfully", 'success', $product->toArray());
         }
 
-        // If user not authenticated and quantity available return success message
-        return response()->json(['message' => 'The requested quantity is available in the Stock'], HttpStatusCode::OK->value);
+
+
+        // If user not authenticated and quantity available send notification.
+        Notify::dispatch("{$product->title} quantity has been updated successfully", 'success', $product->toArray());
     }
 
     public function delete(string $productId)
@@ -77,9 +87,14 @@ class CartController extends Controller
 
         /** @var \App\Models\User $user */
         $user = Auth::user();
-        $cart = $user->cart()->where('product_id', $productId)->first();
+        $item = $user->cart()->where('product_id', $productId)->first();
 
-        $cart->delete();
-        return response()->json(['message' => 'The Item has been deleted from the Cart'], HttpStatusCode::OK->value);
+        // Retrieve the product.
+        $product = Product::select(['id', 'title'])->whereId($productId)->first();
+
+        $item->delete();
+
+        // send notification.
+        Notify::dispatch("{$product->title} has been removed successfully", 'success');
     }
 }

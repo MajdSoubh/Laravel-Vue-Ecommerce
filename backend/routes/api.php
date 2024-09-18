@@ -19,11 +19,9 @@ use App\Http\Controllers\User\ProfileController as UserProfileController;
 use App\Http\Controllers\User\CartController;
 use App\Http\Controllers\User\CheckoutController;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Broadcast;
 
-// Route::get('/user', function (Request $request)
-// {
-//     return $request->user();
-// })->middleware('auth:sanctum');
+Broadcast::routes(['middleware' => ['auth:sanctum,client,admin']]);
 
 // Admin Auth Routes
 Route::group([
@@ -63,7 +61,7 @@ Route::group([
     Route::apiResource('/user', UserController::class);
 
     // Order
-    Route::apiResource('/order', AdminOrderController::class);
+    Route::apiResource('/order', AdminOrderController::class)->only('show', 'index');
 
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index']);
@@ -99,7 +97,7 @@ Route::group([
     Route::get('/cart', [CartController::class, 'getCurrentUserCart']);
     Route::post('/cart', [CartController::class, 'setCart']);
     Route::delete('/cart/{item}', [CartController::class, 'delete']);
-    Route::apiResource('/order', UserOrderController::class);
+    Route::apiResource('/order', UserOrderController::class)->only('index', 'show');
     Route::post('/checkout/{order}', [CheckoutController::class, 'checkoutOrder']);
     Route::post('/checkout', [CheckoutController::class, 'checkout']);
     Route::post('/checkout/success', [CheckoutController::class, 'success']);
@@ -115,8 +113,3 @@ Route::put('/cart', [CartController::class, 'updateCart']);
 Route::get('/product', [UserProductController::class, 'index']);
 Route::get('/product/{product}', [UserProductController::class, 'show']);
 Route::post('/payment/success', [CheckoutController::class, 'success']);
-
-Route::get('/seed', function ()
-{
-    return Artisan::call('db:seed');
-});

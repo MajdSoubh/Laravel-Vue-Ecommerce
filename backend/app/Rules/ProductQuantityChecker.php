@@ -2,6 +2,7 @@
 
 namespace App\Rules;
 
+use App\Events\Cart\OperationFailed;
 use App\Models\Product;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
@@ -32,10 +33,12 @@ class ProductQuantityChecker implements ValidationRule
         $product = Product::find($this->productId);
         if (!$product)
         {
+            OperationFailed::dispatch('The requested product is not available');
             $fail('The requested product is not available');
         }
         else  if ($product->quantity < $this->requestedQuantity)
         {
+            OperationFailed::dispatch('The requested quantity is not available');
             $fail('The requested quantity is not available');
         }
     }

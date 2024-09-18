@@ -3,29 +3,30 @@ import actions from "./actions";
 import * as mutations from "./mutations";
 
 const store = createStore({
-    state: {
-        user: {
-            data: JSON.parse(sessionStorage.getItem("USER_DATA")),
-            token: sessionStorage.getItem("TOKEN"),
-            isAdmin: false,
-        },
-        notification: {
-            show: false,
-            type: null,
-            message: null,
-            period: 10000,
-        },
-        cartItems: [],
+  state: {
+    user: {
+      data: JSON.parse(sessionStorage.getItem("USER_DATA")),
+      token: sessionStorage.getItem("TOKEN"),
+      isAdmin: false,
+      uniqueID: null,
     },
-    getters: {
-        async cartItems(state) {
-            return state.cartItems.length
-                ? state.cartItems
-                : JSON.parse(document.cookie.split("=")[1] || "[]");
-        },
+    notification: {
+      show: false,
+      type: null,
+      message: null,
+      period: 10000,
     },
-    actions,
-    mutations,
+    cartItems: [],
+  },
+  getters: {
+    async cartItems(state) {
+      return state.cartItems.length
+        ? state.cartItems
+        : JSON.parse(document.cookie.split("=")[1] || "[]");
+    },
+  },
+  actions,
+  mutations,
 });
 
 export default store;

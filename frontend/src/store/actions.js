@@ -261,11 +261,13 @@ const actions = {
 
   // Cart
   async uploadCurrentCart({ commit, getters }) {
-    return axios
-      .post("/cart", { items: await getters.cartItems })
-      .then((response) => {
-        return response;
-      });
+    if (getters.cartItems.length > 0) {
+      return axios
+        .post("/cart", { items: await getters.cartItems })
+        .then((response) => {
+          return response;
+        });
+    }
   },
   fetchCartItems({ commit }) {
     return axios.get("/cart").then((response) => {

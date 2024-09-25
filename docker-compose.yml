@@ -1,0 +1,47 @@
+version: "3.8"
+
+services:
+  laravel:
+    build: ./backend/
+    container_name: e-store-laravel
+    depends_on:
+      - db
+    command: ./docker-entrypoint.sh
+    volumes:
+      - ./backend:/var/www/html
+      - /var/www/html/vendor # Avoid mounting vendor
+    ports:
+      - "8080:80"
+      - "9000:9000"
+    networks:
+      - app
+
+  vue:
+    build: ./frontend/
+    container_name: e-store-vue
+    depends_on:
+      - laravel
+    volumes:
+      - ./frontend:/app # Mount the local project to the container
+      - /app/node_modules # Avoid mounting node_modules
+    ports:
+      - "80:5050"
+    networks:
+      - app
+  db:
+    image: mysql:8
+    container_name: e-store-db
+    restart: always
+    environment:
+      MYSQL_DATABASE: laravel-vue-ecommerce
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: laravel
+      MYSQL_PASSWORD: secret
+    ports:
+      - "3308:3306"
+    networks:
+      - app
+
+networks:
+  app:
+    driver: bridge

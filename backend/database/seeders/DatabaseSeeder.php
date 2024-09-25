@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class DatabaseSeeder extends Seeder
 {
@@ -13,6 +14,15 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+
+
+        // Check if the database is already seeded
+        if ($this->isAlreadySeeded())
+        {
+            $this->command->info('Database already seeded!');
+            return;
+        }
+
         // User::factory(10)->create();
 
         User::factory()->create([
@@ -36,5 +46,12 @@ class DatabaseSeeder extends Seeder
 
             CountrySeeder::class
         ]);
+    }
+
+    private function isAlreadySeeded()
+    {
+
+        // Check if any table has existing records, like the 'users' table.
+        return DB::table('users')->count() > 0 && DB::table('countries')->count() > 0;
     }
 }

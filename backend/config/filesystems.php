@@ -46,7 +46,7 @@ return [
 
         'shared' => [
             'driver' => 'local',
-            'root' => dirname(__DIR__, 1) . '\\public\\',
+            'root' => dirname(__DIR__, 1) . '/public/',
             'url' => env('APP_URL') . '/',
             'visibility' => 'public',
             'throw' => false,

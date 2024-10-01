@@ -30,7 +30,7 @@ class UserController extends Controller
 
         $user = User::create($data);
 
-        return (new UserResource($user))->additional(['message' => 'User has been created successfully'])->response()->setStatusCode(HttpStatusCode::OK->value);
+        return (new UserResource($user))->additional(['message' => 'User has been created successfully'])->response()->setStatusCode(HttpStatusCode::CREATED->value);
     }
     public function show(string $id)
     {
@@ -55,7 +55,7 @@ class UserController extends Controller
         $user->update($request->validated());
 
 
-        return (new UserResource($user))->additional(['message' => 'User has been updated successfully'])->response()->setStatusCode(HttpStatusCode::CREATED->value);
+        return (new UserResource($user))->additional(['message' => 'User has been updated successfully'])->response()->setStatusCode(HttpStatusCode::OK->value);
     }
 
     public function destroy(string $id)

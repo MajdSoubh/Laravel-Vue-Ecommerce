@@ -64,8 +64,7 @@ class CategoriesController extends Controller
      */
     public function update(UpdateRequest $request, string $id)
     {
-        $category = Category::find($id);
-
+        $category = Category::find($id);;
         if (is_null($category))
         {
             return response()->json(['message' => 'No category exists with the provided id'], HttpStatusCode::NOT_FOUND->value);
@@ -74,11 +73,9 @@ class CategoriesController extends Controller
         // Add updated by columns
         $policy = ['updated_by' => auth()->user()->id];
 
-        $category->update([
-            'name' => $request->input('name'),
-            'parent_id' => $request->input('parent'),
-            'active' => $request->input('active'),
-        ] + $policy);
+        $category->update(
+            $request->only(['name', 'active', 'parent_id']) + $policy
+        );
 
         return (new CategoryResource($category))->additional(['message' => 'Category has been updated successfully'])->response()->setStatusCode(HttpStatusCode::OK->value);
     }

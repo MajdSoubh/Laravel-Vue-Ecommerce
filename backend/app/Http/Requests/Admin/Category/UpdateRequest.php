@@ -28,4 +28,13 @@ class UpdateRequest extends FormRequest
             'active' => 'boolean'
         ];
     }
+
+    protected function passedValidation()
+    {
+        $this->merge([
+            'parent_id' => $this->parent,
+        ]);
+
+        $this->offsetUnset('parent');
+    }
 }

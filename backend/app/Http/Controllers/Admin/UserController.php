@@ -6,8 +6,8 @@ use App\Enums\HttpStatusCode;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use  App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\User\UpdateRequest;
-use App\Http\Requests\Admin\User\StoreRequest;
+use App\Http\Requests\Admin\Account\UpdateRequest;
+use App\Http\Requests\Admin\Account\StoreRequest;
 use App\Http\Resources\User\UserResource;
 
 class UserController extends Controller

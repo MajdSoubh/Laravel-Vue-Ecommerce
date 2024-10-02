@@ -39,6 +39,8 @@ Route::group([
         Route::middleware(['guest:sanctum,admin'])->group(function ()
         {
             Route::post('/login', 'login')->name('login');
+            Route::post('/forget-password', 'forgetPassword')->name('password.forget');
+            Route::post('/reset-password/{token?}', 'resetPassword')->name('password.reset');
         });
         Route::middleware(['auth:sanctum,admin'])->group(function ()
         {
@@ -87,6 +89,8 @@ Route::group(['as' => 'user.'], function ()
         {
             Route::post('/login', 'login')->name('login');
             Route::post('/register', 'register')->name('store');
+            Route::post('/forget-password', 'forgetPassword')->name('password.forget');
+            Route::post('/reset-password/{token?}', 'resetPassword')->name('password.reset');
         });
         Route::middleware(['auth:sanctum,client'])->group(function ()
         {

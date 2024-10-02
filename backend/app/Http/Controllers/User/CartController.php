@@ -34,16 +34,20 @@ class CartController extends Controller
             $cartItem = $user->cart()->where('product_id', $item['product_id'])->first();
             if ($cartItem)
             {
+
                 $cartItem->quantity = $item['quantity'];
                 $cartItem->update();
             }
             else
             {
+
                 $cartItem =  $user->cart()->create(['product_id' => $item['product_id'], 'quantity' => $item['quantity']]);
             }
         }
 
-        Notify::dispatch("The shopping cart has been stored successfully.", 'success', $cartItem->toArray());
+        Notify::dispatch("The shopping cart has been stored successfully.", 'success');
+
+        return response()->json(['data' => $cartItem->toArray()]);
     }
 
     public function updateCart(UpdateRequest $request)

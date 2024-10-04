@@ -108,7 +108,7 @@ Route::group(['as' => 'user.'], function ()
         Route::post('/cart', [CartController::class, 'setCart']);
         Route::delete('/cart/{item}', [CartController::class, 'delete']);
         Route::apiResource('/order', UserOrderController::class)->only('index', 'show');
-        Route::post('/checkout/{order}', [CheckoutController::class, 'checkoutOrder']);
+        Route::post('/checkout/order/{order}', [CheckoutController::class, 'checkoutOrder']);
         Route::post('/checkout', [CheckoutController::class, 'checkout']);
         Route::post('/checkout/success', [CheckoutController::class, 'success']);
 

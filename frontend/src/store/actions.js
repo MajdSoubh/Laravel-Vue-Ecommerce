@@ -359,7 +359,7 @@ const actions = {
     const success_url = host + "/order";
     const cancel_url = host + "/cancel";
     return axios
-      .post(`/checkout/${order.id}`, {
+      .post(`/checkout/order/${order.id}`, {
         success_url,
         cancel_url,
       })

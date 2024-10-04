@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Enums\UserTypes;
 use App\Models\User;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Notifications\Messages\MailMessage;

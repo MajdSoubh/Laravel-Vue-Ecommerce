@@ -20,7 +20,6 @@ class OrderResource extends JsonResource
             "id" => $this->id,
             "status" => $this->status,
             "total_price" => $this->total_price,
-            "active" => $this->active,
             "client" => $this->whenLoaded('client'),
             "details" => $this->whenLoaded('details'),
             "items" => $this->whenLoaded('items'),

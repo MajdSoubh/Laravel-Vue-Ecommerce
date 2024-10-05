@@ -21,7 +21,7 @@ class OrderFactory extends Factory
         $userID = User::factory()->create(['type' => 'client'])->id;
         return [
             'total_price' => fake()->unique()->numberBetween(0, 2000),
-            'status' => fake()->unique()->randomElement(OrderStatus::toArray()),
+            'status' => fake()->randomElement(OrderStatus::toArray()),
             'created_by' => $userID,
             'updated_by' => $userID,
 

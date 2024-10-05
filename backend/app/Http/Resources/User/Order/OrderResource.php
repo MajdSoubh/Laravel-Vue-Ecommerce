@@ -24,7 +24,7 @@ class OrderResource extends JsonResource
             "details" => $this->whenLoaded('details'),
             "items" => $this->whenLoaded('items'),
             "items_count" => $this->items_count,
-            "created_by" => $this->whenLoaded('client'),
+            "created_by" => $this->created_by,
             "updated_by" => $this->updated_by,
             "created_at" => $date->toDayDateTimeString(),
             "updated_at" => $this->updated_at

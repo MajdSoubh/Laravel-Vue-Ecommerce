@@ -88,6 +88,21 @@ This method allows you to run the entire application using Docker containers for
    docker-compose up --build
 ```
 
+## Run Tests
+
+```shell
+   # Enter the directory
+   cd backend
+
+   # Open new terminal or shell and start Laravel Reverb
+   php artisan reverb:start
+
+   # Run all tests using pest
+   ./vendor/bin/pest
+
+
+```
+
 ## Screen Shots
 
 <p align="center">

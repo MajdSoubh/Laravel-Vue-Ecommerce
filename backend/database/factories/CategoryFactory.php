@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -16,9 +17,12 @@ class CategoryFactory extends Factory
      */
     public function definition(): array
     {
+        $userID = User::factory()->create(['type' => 'admin'])->id;
         return [
             'name' => fake()->title(),
             'active' => fake()->randomElement([false, true]),
+            'created_by' => $userID,
+            'updated_by' => $userID,
         ];
     }
 }

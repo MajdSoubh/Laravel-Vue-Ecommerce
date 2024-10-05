@@ -44,6 +44,42 @@ test('The client is allowed to check out their cart items.', function ()
     $response->assertStatus(200);
     $this->assertMatchesRegularExpression('/^https:\/\/checkout.stripe.com\//', $response->getContent());
 });
+test('The visitor is not allowed to check out their cart items.', function ()
+{
+
+    $product_1 = Product::factory()->create(['quantity' => 10]);
+    $product_2 = Product::factory()->create(['quantity' => 5]);
+    $this->seed(CountrySeeder::class);
+    $data = [
+        "email" => "m@m",
+        "name" => "majd",
+        "address_1" => "s",
+        "address_2" => "",
+        "state" => null,
+        "city" => "syria",
+        "country" => "uae",
+        "zip_code" => "12",
+        "phone" => "1234567890"
+    ];
+    // Initialize request data
+    $data = [
+        "items" => [
+            [
+                'product_id' => $product_1->id,
+                'quantity' => 5,
+            ],
+            [
+                'product_id' => $product_2->id,
+                'quantity' => 3,
+            ]
+        ],
+        "success_url" => "http://example.com",
+        "cancel_url" => "http://example.com"
+    ];
+    $response = $this->post("/api/checkout", $data);
+
+    $response->assertStatus(401);
+});
 test('The client is allowed to check out their order.', function ()
 {
 

@@ -3,6 +3,37 @@
 
 use App\Models\User;
 
+test('The admin is allowed to fetch all account', function ()
+{
+    $admin = User::factory()->create(['type' => 'admin']);
+    $users = User::factory()->count(5)->create();
+    $users->unshift($admin);
+    $response = $this->actingAs($admin)->get('/api/admin/user');
+
+    $response->assertStatus(200);
+    $response->assertJson(
+        [
+            'data' => $users->select(['id', 'name', 'email', 'type', 'phone'])->toArray()
+        ],
+    );
+});
+test('The client is not allowed to fetch all account', function ()
+{
+    $client = User::factory()->create(['type' => 'client']);
+    $users = User::factory()->count(5)->create();
+    $users->unshift($client);
+    $response = $this->actingAs($client)->get('/api/admin/user');
+
+    $response->assertStatus(401);
+});
+test('The visitor is not allowed to fetch all account', function ()
+{
+    $users = User::factory()->count(5)->create();
+
+    $response = $this->get('/api/admin/user');
+
+    $response->assertStatus(401);
+});
 test('The admin is allowed to create a new admin account', function ()
 {
     $admin = User::factory()->create(['type' => 'admin']);

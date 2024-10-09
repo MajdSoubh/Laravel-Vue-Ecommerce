@@ -50,17 +50,6 @@ test('The visitor is not allowed to check out their cart items.', function ()
     $product_1 = Product::factory()->create(['quantity' => 10]);
     $product_2 = Product::factory()->create(['quantity' => 5]);
     $this->seed(CountrySeeder::class);
-    $data = [
-        "email" => "m@m",
-        "name" => "majd",
-        "address_1" => "s",
-        "address_2" => "",
-        "state" => null,
-        "city" => "syria",
-        "country" => "uae",
-        "zip_code" => "12",
-        "phone" => "1234567890"
-    ];
     // Initialize request data
     $data = [
         "items" => [

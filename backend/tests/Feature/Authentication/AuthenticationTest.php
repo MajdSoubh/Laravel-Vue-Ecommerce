@@ -4,7 +4,9 @@
 use App\Models\User;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Password;
 use Laravel\Sanctum\Sanctum;
 
@@ -96,10 +98,10 @@ test('Unautenticated client cannot logout', function ()
     // Assertion
     $response->assertStatus(401);
 });
-test('Admin can trigger a password forget', function ()
+test('The admin can trigger a password forget', function ()
 {
-    User::factory()->create(['type' => 'admin', 'email' => 'majdsoubh53@gmail.com']);
-    Mail::fake();
+    $admin = User::factory()->create(['type' => 'admin', 'email' => 'majdsoubh53@gmail.com']);
+    Notification::fake();
 
     // Call the forgetPassword method
     $response = $this->post('/api/admin/forget-password', [
@@ -116,14 +118,51 @@ test('Admin can trigger a password forget', function ()
         ]);
 
     // Assert that the password reset mail has been sent.
-    // Mail::assertSent(ResetPassword::class, function ($mail)
-    // {
-    //     return $mail->hasTo('majdsoubh53@gmail.com');
-    // });
+    Notification::assertSentTo($admin, ResetPassword::class, function ($notification)
+    {
+        $resetToken = $notification->token;
+
+        $this->assertNotEmpty($resetToken);
+
+        return true;
+    });
 });
-test('Client can trigger a password forget', function ()
+test('The admin can reset their password using reset token', function ()
 {
-    User::factory()->create(['type' => 'client', 'email' => 'majdsoubh53@gmail.com']);
+    Notification::fake();
+
+    $admin = User::factory()->create(['type' => 'admin', 'email' => 'majdsoubh53@gmail.com']);
+
+    // Trigger password reset request
+    $this->post('/api/admin/forget-password', [
+        'email' => 'majdsoubh53@gmail.com'
+    ]);
+
+    // Capture the reset token
+    Notification::assertSentTo($admin, ResetPassword::class, function ($notification) use ($admin)
+    {
+        $resetToken = $notification->token;
+
+        // Use the token to reset the password
+        $response = $this->post('/api/admin/reset-password', [
+            'token' => $resetToken,
+            'email' => $admin->email,
+            'password' => 'newpassword',
+            'password_confirmation' => 'newpassword',
+        ]);
+
+        // Assert password was reset
+        $response->assertStatus(200);
+        $this->assertTrue(Hash::check('newpassword', $admin->fresh()->password));
+
+        return true;
+    });
+});
+
+test('The client can trigger a password forget', function ()
+{
+    $client = User::factory()->create(['type' => 'client', 'email' => 'majdsoubh53@gmail.com']);
+    Notification::fake();
 
     // Call the forgetPassword method
     $response = $this->post('/api/forget-password', [
@@ -136,4 +175,45 @@ test('Client can trigger a password forget', function ()
             'success' => true,
             'message' => __(Password::RESET_LINK_SENT)
         ]);
+
+    // Assert that the password reset mail has been sent.
+    Notification::assertSentTo($client, ResetPassword::class, function ($notification)
+    {
+        $resetToken = $notification->token;
+
+        $this->assertNotEmpty($resetToken);
+
+        return true;
+    });
+});
+test('The client can reset their password using reset token', function ()
+{
+    Notification::fake();
+
+    $admin = User::factory()->create(['type' => 'client', 'email' => 'majdsoubh53@gmail.com']);
+
+    // Trigger password reset request
+    $this->post('/api/forget-password', [
+        'email' => 'majdsoubh53@gmail.com'
+    ]);
+
+    // Capture the reset token
+    Notification::assertSentTo($admin, ResetPassword::class, function ($notification) use ($admin)
+    {
+        $resetToken = $notification->token;
+
+        // Use the token to reset the password
+        $response = $this->post('/api/reset-password', [
+            'token' => $resetToken,
+            'email' => $admin->email,
+            'password' => 'newpassword',
+            'password_confirmation' => 'newpassword',
+        ]);
+
+        // Assert password was reset
+        $response->assertStatus(200);
+        $this->assertTrue(Hash::check('newpassword', $admin->fresh()->password));
+
+        return true;
+    });
 });

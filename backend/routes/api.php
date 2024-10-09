@@ -3,15 +3,14 @@
 use Illuminate\Support\Facades\Route;
 
 // Admin
-use App\Http\Controllers\Admin\AuthController as AdminAuthController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\CategoriesController as AdminCategoryController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\ReportController;
+
 // User
-use App\Http\Controllers\User\AuthController as UserAuthController;
 use App\Http\Controllers\User\CategoryController as UserCategoryController;
 use App\Http\Controllers\User\ProductController as UserProductController;
 use App\Http\Controllers\User\OrderController as UserOrderController;
@@ -20,86 +19,44 @@ use App\Http\Controllers\User\CartController;
 use App\Http\Controllers\User\CheckoutController;
 use Illuminate\Support\Facades\Broadcast;
 
+// Include Auth Routes
+require "auth.php";
 
-// Routes for Broadcasting
+// Publish Broadcasting Routes
 Broadcast::routes(['middleware' => ['auth:sanctum,client,admin']]);
 
-// Admin Routes
+// Admin CRUD Routes
 Route::group([
     'prefix' => '/admin',
-    'as' => 'admin.'
+    'as' => 'admin.',
+    'middleware' => 'auth:sanctum,admin',
 ], function ()
 {
+    // Category
+    Route::apiResource('/category', AdminCategoryController::class);
+    Route::get('categories/tree', [AdminCategoryController::class, 'getAsTree']);
 
-    // Authentication Routes
-    Route::group([
-        'controller' => AdminAuthController::class
-    ], function ()
-    {
-        Route::middleware(['guest:sanctum,admin'])->group(function ()
-        {
-            Route::post('/login', 'login')->name('login');
-            Route::post('/forget-password', 'forgetPassword')->name('password.forget');
-            Route::post('/reset-password/{token?}', 'resetPassword')->name('password.reset');
-        });
-        Route::middleware(['auth:sanctum,admin'])->group(function ()
-        {
-            Route::post('/register', 'register')->name('register');
-            Route::get('/user', 'getUser')->name('user');
-            Route::get('/logout', 'logout')->name('logout');
-        });
-    });
+    // Product
+    Route::apiResource('/product', AdminProductController::class);
 
-    // CRUD Routes
-    Route::group([
-        'middleware' => 'auth:sanctum,admin',
-    ], function ()
-    {
+    // User
+    Route::apiResource('/user', UserController::class);
 
-        // Category
-        Route::apiResource('/category', AdminCategoryController::class);
-        Route::get('categories/tree', [AdminCategoryController::class, 'getAsTree']);
+    // Order
+    Route::apiResource('/order', AdminOrderController::class)->only('show', 'index');
 
-        // Product
-        Route::apiResource('/product', AdminProductController::class);
+    // Dashboard
+    Route::get('/dashboard', [DashboardController::class, 'index']);
 
-        // User
-        Route::apiResource('/user', UserController::class);
-
-        // Order
-        Route::apiResource('/order', AdminOrderController::class)->only('show', 'index');
-
-        // Dashboard
-        Route::get('/dashboard', [DashboardController::class, 'index']);
-
-        // Report
-        Route::get('/report', [ReportController::class, 'index']);
-    });
+    // Report
+    Route::get('/report', [ReportController::class, 'index']);
 });
 
-// User Routes
+// User CRUD Routes
 Route::group(['as' => 'user.'], function ()
 {
-    // Authentication Routes
-    Route::group([
-        'controller' => UserAuthController::class
-    ], function ()
-    {
-        Route::middleware('guest:sanctum,client')->group(function ()
-        {
-            Route::post('/login', 'login')->name('login');
-            Route::post('/register', 'register')->name('store');
-            Route::post('/forget-password', 'forgetPassword')->name('password.forget');
-            Route::post('/reset-password/{token?}', 'resetPassword')->name('password.reset');
-        });
-        Route::middleware(['auth:sanctum,client'])->group(function ()
-        {
-            Route::get('/user', 'getUser');
-            Route::get('/logout', 'logout')->name('logout');
-        });
-    });
 
-    // CRUD Routes
+    // Authenticated Routes
     Route::group([
         'middleware' => 'auth:sanctum,client',
     ], function ()

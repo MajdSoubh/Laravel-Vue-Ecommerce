@@ -4,7 +4,6 @@ use App\Models\User;
 
 test('Client can update his informations', function ()
 {
-
     $client = User::factory()->create(['email' => 'm@m', 'type' => 'client']);
     $this->seed(CountrySeeder::class);
     $data = [

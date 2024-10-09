@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Enums\HttpStatusCode;
 use App\Enums\UserTypes;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
@@ -13,6 +12,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\ForgetPasswordRequest;
 use App\Http\Requests\Auth\ResetPasswordRequest;
 use App\Services\AuthService;
+use Symfony\Component\HttpFoundation\Response;
 
 class AuthController extends Controller
 {
@@ -34,7 +34,7 @@ class AuthController extends Controller
 
         if (!$result)
         {
-            return response()->json(['message' => 'The credentials are not correct'], HttpStatusCode::UNPROCESSABLE_CONTENT->value);
+            return response()->json(['message' => 'The credentials are not correct'], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
 
@@ -47,21 +47,21 @@ class AuthController extends Controller
 
         $result = $this->authService->register($data, UserTypes::admin->value);
 
-        return response()->json(['user' => $result['user'], 'token' => $result['token']], HttpStatusCode::CREATED->value);
+        return response()->json(['user' => $result['user'], 'token' => $result['token']], Response::HTTP_CREATED);
     }
 
     public function logout()
     {
         $this->authService->logout();
 
-        return response()->json(['success' => true], HttpStatusCode::OK->value);
+        return response()->json(['success' => true], Response::HTTP_OK);
     }
 
     public function forgetPassword(ForgetPasswordRequest $request)
     {
         $status = $this->authService->sendResetLink($request->only('email'), route('admin.password.reset'));
 
-        return $status === Password::RESET_LINK_SENT ? response()->json(['success' => true, 'message' => __($status)], HttpStatusCode::OK->value) : response()->json(['success' => false, 'message' => __($status)], HttpStatusCode::BAD_REQUEST->value);
+        return $status === Password::RESET_LINK_SENT ? response()->json(['success' => true, 'message' => __($status)], Response::HTTP_OK) : response()->json(['success' => false, 'message' => __($status)], Response::HTTP_BAD_REQUEST);
     }
 
     public function resetPassword(ResetPasswordRequest $request, $token = null)
@@ -75,7 +75,7 @@ class AuthController extends Controller
 
         $status = $this->authService->resetPassword($credentials);
 
-        return $status === Password::PASSWORD_RESET ?  response()->json(['success' => true, 'message' => __($status)], HttpStatusCode::OK->value) : response()->json(['success' => false, 'message' => __($status)], HttpStatusCode::BAD_REQUEST->value);
+        return $status === Password::PASSWORD_RESET ?  response()->json(['success' => true, 'message' => __($status)], Response::HTTP_OK) : response()->json(['success' => false, 'message' => __($status)], Response::HTTP_BAD_REQUEST);
     }
 
     public function getAdmin()

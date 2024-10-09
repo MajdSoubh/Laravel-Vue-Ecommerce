@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\User;
 
-use App\Enums\HttpStatusCode;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
 use App\Http\Controllers\Controller;
@@ -16,6 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class CheckoutController extends Controller
@@ -26,7 +26,7 @@ class CheckoutController extends Controller
         $user = auth()->user();
         if (!isset($user->details->country) && !isset($user->details->address_1))
         {
-            return response()->json(['message' => "Please Complete your profile shippment details"], HttpStatusCode::BAD_REQUEST->value);
+            return response()->json(['message' => "Please Complete your profile shippment details"], Response::HTTP_BAD_REQUEST);
         }
         $items = $request->input('items');
         $successUrl = $request->input('success_url');
@@ -140,7 +140,7 @@ class CheckoutController extends Controller
             $session = \Stripe\Checkout\Session::retrieve($session_id);
             if (!$session)
             {
-                return response()->json(['message' => 'invalid session id'], HttpStatusCode::BAD_REQUEST->value);
+                return response()->json(['message' => 'invalid session id'], Response::HTTP_BAD_REQUEST);
             }
 
             $payment = Payment::query()
@@ -157,11 +157,11 @@ class CheckoutController extends Controller
             }
             $customer = \Stripe\Customer::retrieve($session->customer);
 
-            return response()->json(['message' => "Order has been completed", 'customer' => $customer], HttpStatusCode::OK->value);
+            return response()->json(['message' => "Order has been completed", 'customer' => $customer], Response::HTTP_OK);
         }
         catch (\Exception $e)
         {
-            return response()->json(['message' => $e->getMessage()], HttpStatusCode::BAD_REQUEST->value);
+            return response()->json(['message' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
         }
     }
     public function checkoutOrder(Order $order, Request $request)
@@ -171,7 +171,7 @@ class CheckoutController extends Controller
         $user = auth()->user();
         if (!isset($user->details->country) && !isset($user->details->address_1))
         {
-            return response()->json(['message' => "Please Complete your profile shippment details"], HttpStatusCode::BAD_REQUEST->value);
+            return response()->json(['message' => "Please Complete your profile shippment details"], Response::HTTP_BAD_REQUEST);
         }
         $successUrl = $request->input('success_url');
         $cancelUrl = $request->input('cancel_url');

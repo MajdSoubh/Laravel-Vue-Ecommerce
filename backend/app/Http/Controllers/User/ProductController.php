@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\User;
 
-use App\Enums\HttpStatusCode;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\User\Product\ProductResource;
 use App\Models\Product;
 use Illuminate\Database\Eloquent\Builder;
+use Symfony\Component\HttpFoundation\Response;
 
 class ProductController extends Controller
 {
@@ -64,7 +64,7 @@ class ProductController extends Controller
 
         if (is_null($result))
         {
-            return response()->json(['message' => 'No product exists with the provided data'], HttpStatusCode::NOT_FOUND->value);
+            return response()->json(['message' => 'No product exists with the provided data'], Response::HTTP_NOT_FOUND);
         }
 
         return new ProductResource($result);

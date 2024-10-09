@@ -2,7 +2,6 @@
 
 namespace App\Http\Middleware;
 
-use App\Enums\HttpStatusCode;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -22,7 +21,7 @@ class Auth
             auth()->shouldUse($guard);
             if (!in_array(auth()->user()->type, $types))
             {
-                return response(['message' => 'You don\'t have permissions'], HttpStatusCode::UNAUTHORIZED->value);
+                return response(['message' => 'You don\'t have permissions'], Response::HTTP_UNAUTHORIZED);
             }
             else
             {
@@ -31,7 +30,7 @@ class Auth
         }
         else
         {
-            return response(['message' => 'You are not signed in'], HttpStatusCode::UNAUTHORIZED->value);
+            return response(['message' => 'You are not signed in'], Response::HTTP_UNAUTHORIZED);
         }
     }
 }

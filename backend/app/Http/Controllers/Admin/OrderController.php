@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Enums\HttpStatusCode;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\User\Order\OrderResource;
 use App\Models\Order;
-use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class OrderController extends Controller
 {
@@ -32,12 +31,12 @@ class OrderController extends Controller
 
         if (is_null($order))
         {
-            return response()->json(['message' => 'No order exists with the provided id'], HttpStatusCode::NOT_FOUND->value);
+            return response()->json(['message' => 'No order exists with the provided id'], Response::HTTP_NOT_FOUND);
         }
 
         if ($order->created_by != request()->user()->id)
         {
-            return response()->json(['message' => 'you don\'t have persmission to access this order'] . HttpStatusCode::UNAUTHORIZED);
+            return response()->json(['message' => 'you don\'t have persmission to access this order'] . Response::HTTP_UNAUTHORIZED);
         }
 
         return new OrderResource($order);

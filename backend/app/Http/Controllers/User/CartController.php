@@ -2,15 +2,13 @@
 
 namespace App\Http\Controllers\User;
 
-use App\Enums\HttpStatusCode;
-
-use App\Events\Cart\ItemUpdated;
 use App\Events\Notify;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\Cart\StoreRequest;
 use App\Http\Requests\User\Cart\UpdateRequest;
 use App\Models\Product;
 use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\Response;
 
 class CartController extends Controller
 {
@@ -21,7 +19,7 @@ class CartController extends Controller
         $user = Auth::User();
         $cart = $user->cart()->get();
 
-        return response()->json($cart, HttpStatusCode::OK->value);
+        return response()->json($cart, Response::HTTP_OK);
     }
 
     public function setCart(StoreRequest $request)

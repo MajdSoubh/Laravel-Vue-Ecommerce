@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Enums\HttpStatusCode;
 use App\Http\Requests\Admin\Product\StoreRequest as ProductStoreRequest;
 use App\Http\Requests\Admin\Product\UpdateRequest as ProductUpdateRequest;
 use App\Http\Resources\Admin\Product\ProductResource;
 use App\Models\Product;
 use App\Traits\ImageHelper;
 use  App\Http\Controllers\Controller;
+use Symfony\Component\HttpFoundation\Response;
 
 class ProductController extends Controller
 {
@@ -58,7 +58,7 @@ class ProductController extends Controller
 
         if (is_null($product))
         {
-            return response()->json(['message' => 'No product exists with the provided id'], HttpStatusCode::NOT_FOUND->value);
+            return response()->json(['message' => 'No product exists with the provided id'], Response::HTTP_NOT_FOUND);
         }
 
         return new ProductResource($product);
@@ -75,7 +75,7 @@ class ProductController extends Controller
         // check if the product existed.
         if (is_null($product))
         {
-            return response()->json(['message' => 'No product exists with the provided id'], HttpStatusCode::NOT_FOUND->value);
+            return response()->json(['message' => 'No product exists with the provided id'], Response::HTTP_NOT_FOUND);
         }
 
         // check if images should be updated
@@ -113,7 +113,7 @@ class ProductController extends Controller
 
         if (is_null($product))
         {
-            return response()->json(['message' => 'No product exists with the provided id'], HttpStatusCode::NOT_FOUND->value);
+            return response()->json(['message' => 'No product exists with the provided id'], Response::HTTP_NOT_FOUND);
         }
 
         // delete associated images

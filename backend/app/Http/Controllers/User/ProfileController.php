@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\User;
 
-use App\Enums\HttpStatusCode;
 use App\Events\Notify;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\Profile\UpdateDetailsRequest;
@@ -10,6 +9,7 @@ use App\Http\Requests\User\Profile\UpdatePasswordRequest;
 use App\Models\Country;
 use Illuminate\Support\Facades\Hash;
 use stdClass;
+use Symfony\Component\HttpFoundation\Response;
 
 class ProfileController extends Controller
 {
@@ -25,7 +25,7 @@ class ProfileController extends Controller
             $errors = new stdClass;
             $errors->old_password = ['Invalid current password'];
 
-            return response()->json(['errors' => $errors], HttpStatusCode::UNPROCESSABLE_CONTENT->value);
+            return response()->json(['errors' => $errors], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         $user->password = $data['new_password'];
@@ -37,7 +37,7 @@ class ProfileController extends Controller
     public function getCountries()
     {
         $countries = Country::get();
-        return response()->json(['countries' => $countries], HttpStatusCode::OK->value);
+        return response()->json(['countries' => $countries], Response::HTTP_OK);
     }
     public function updateDetails(UpdateDetailsRequest $request)
     {
@@ -71,6 +71,6 @@ class ProfileController extends Controller
         $data['email'] = $user->email;
         $data['phone'] = $user->phone;
 
-        return response()->json($data, HttpStatusCode::OK->value);
+        return response()->json($data, Response::HTTP_OK);
     }
 }

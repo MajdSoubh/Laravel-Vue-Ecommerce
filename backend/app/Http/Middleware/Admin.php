@@ -23,7 +23,7 @@ class Admin
         // if user not admin return an apropriate message
         else
         {
-            return response()->json(['message' => 'You don\'t have permission to perform this action'], 402);
+            return response()->json(['message' => 'You don\'t have permission to perform this action'], Response::HTTP_UNAUTHORIZED);
         }
     }
 }

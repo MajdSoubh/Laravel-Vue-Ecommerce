@@ -2,7 +2,6 @@
 
 namespace App\Http\Middleware;
 
-use App\Enums\HttpStatusCode;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -22,7 +21,7 @@ class Guest
 
             if (in_array(auth()->user()->type, $types))
             {
-                return response(['message' => 'You have to be signed out first'], HttpStatusCode::BAD_REQUEST->value);
+                return response(['message' => 'You have to be signed out first'], Response::HTTP_BAD_REQUEST);
             }
         }
         return $next($request);

@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Enums\HttpStatusCode;
 use App\Http\Requests\Admin\Category\StoreRequest as CategoryStoreRequest;
 use App\Http\Requests\Admin\Category\UpdateRequest;
 use App\Http\Resources\Category\CategoryTreeResource;
 use App\Http\Resources\Category\CategoryResource;
 use App\Models\Category;
 use App\Http\Controllers\Controller;
+use Symfony\Component\HttpFoundation\Response;
 
 class CategoriesController extends Controller
 {
@@ -41,7 +41,7 @@ class CategoriesController extends Controller
             'active' => $request->input('active'),
         ] + $policy);
 
-        return (new CategoryResource($category))->additional(['message' => 'Category has been created successfully'])->response()->setStatusCode(HttpStatusCode::CREATED->value);
+        return (new CategoryResource($category))->additional(['message' => 'Category has been created successfully'])->response()->setStatusCode(Response::HTTP_CREATED);
     }
 
     /**
@@ -53,7 +53,7 @@ class CategoriesController extends Controller
 
         if (is_null($category))
         {
-            return response()->json(['message' => 'No category exists with the provided id'], HttpStatusCode::NOT_FOUND->value);
+            return response()->json(['message' => 'No category exists with the provided id'], Response::HTTP_NOT_FOUND);
         }
 
         return new CategoryResource($category);
@@ -67,7 +67,7 @@ class CategoriesController extends Controller
         $category = Category::find($id);;
         if (is_null($category))
         {
-            return response()->json(['message' => 'No category exists with the provided id'], HttpStatusCode::NOT_FOUND->value);
+            return response()->json(['message' => 'No category exists with the provided id'], Response::HTTP_NOT_FOUND);
         }
 
         // Add updated by columns
@@ -77,7 +77,7 @@ class CategoriesController extends Controller
             $request->only(['name', 'active', 'parent_id']) + $policy
         );
 
-        return (new CategoryResource($category))->additional(['message' => 'Category has been updated successfully'])->response()->setStatusCode(HttpStatusCode::OK->value);
+        return (new CategoryResource($category))->additional(['message' => 'Category has been updated successfully'])->response()->setStatusCode(Response::HTTP_OK);
     }
 
     /**
@@ -88,12 +88,12 @@ class CategoriesController extends Controller
         $category = Category::find($id);
         if (is_null($category))
         {
-            return response()->json(['message' => 'No category exists with the provided id'], HttpStatusCode::NOT_FOUND->value);
+            return response()->json(['message' => 'No category exists with the provided id'], Response::HTTP_NOT_FOUND);
         }
 
         $category->delete();
 
-        return (new CategoryResource($category))->additional(['message' => 'Category has been deleted successfully'])->response()->setStatusCode(HttpStatusCode::OK->value);
+        return (new CategoryResource($category))->additional(['message' => 'Category has been deleted successfully'])->response()->setStatusCode(Response::HTTP_OK);
     }
 
     public function getAsTree()

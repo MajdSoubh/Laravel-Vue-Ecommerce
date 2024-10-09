@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Enums\HttpStatusCode;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use  App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Account\UpdateRequest;
 use App\Http\Requests\Admin\Account\StoreRequest;
 use App\Http\Resources\User\UserResource;
+use Symfony\Component\HttpFoundation\Response;
 
 class UserController extends Controller
 {
@@ -30,7 +30,7 @@ class UserController extends Controller
 
         $user = User::create($data);
 
-        return (new UserResource($user))->additional(['message' => 'User has been created successfully'])->response()->setStatusCode(HttpStatusCode::CREATED->value);
+        return (new UserResource($user))->additional(['message' => 'User has been created successfully'])->response()->setStatusCode(Response::HTTP_CREATED);
     }
     public function show(string $id)
     {
@@ -38,7 +38,7 @@ class UserController extends Controller
 
         if (is_null($user))
         {
-            return response()->json(['message' => 'No user exists with the provided id'], HttpStatusCode::NOT_FOUND->value);
+            return response()->json(['message' => 'No user exists with the provided id'], Response::HTTP_NOT_FOUND);
         }
 
         return new UserResource($user);
@@ -49,13 +49,13 @@ class UserController extends Controller
         $user = User::find($id);
         if (is_null($user))
         {
-            return response()->json(['message' => 'No user exists with the provided id'], HttpStatusCode::NOT_FOUND->value);
+            return response()->json(['message' => 'No user exists with the provided id'], Response::HTTP_NOT_FOUND);
         }
 
         $user->update($request->validated());
 
 
-        return (new UserResource($user))->additional(['message' => 'User has been updated successfully'])->response()->setStatusCode(HttpStatusCode::OK->value);
+        return (new UserResource($user))->additional(['message' => 'User has been updated successfully'])->response()->setStatusCode(Response::HTTP_OK);
     }
 
     public function destroy(string $id)
@@ -63,12 +63,12 @@ class UserController extends Controller
         $user = User::find($id);
         if (is_null($user))
         {
-            return response()->json(['message' => 'No user exists with the provided id'], HttpStatusCode::NOT_FOUND->value);
+            return response()->json(['message' => 'No user exists with the provided id'], Response::HTTP_NOT_FOUND);
         }
 
         $user->delete();
 
-        return (new UserResource($user))->additional(['message' => 'User has been deleted successfully'])->response()->setStatusCode(HttpStatusCode::OK->value);
+        return (new UserResource($user))->additional(['message' => 'User has been deleted successfully'])->response()->setStatusCode(Response::HTTP_OK);
     }
 
 

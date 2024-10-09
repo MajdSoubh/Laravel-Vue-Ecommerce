@@ -29,7 +29,7 @@ Broadcast::routes(['middleware' => ['auth:sanctum,client,admin']]);
 Route::group([
     'prefix' => '/admin',
     'as' => 'admin.',
-    'middleware' => 'auth:sanctum,admin',
+    'middleware' => ['auth:sanctum,admin', 'throttle:80,1'],
 ], function ()
 {
     // Category
@@ -53,7 +53,7 @@ Route::group([
 });
 
 // User CRUD Routes
-Route::group(['as' => 'user.'], function ()
+Route::group(['as' => 'user.', 'middleware' => 'throttle:80,1'], function ()
 {
 
     // Authenticated Routes

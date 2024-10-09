@@ -93,7 +93,7 @@ test('The visitor is allowed to update his cart', function ()
             $event->data['id'] == $product->id;
     });
 });
-test('The client is allowed to upload his shop cart', function ()
+test('The client is allowed to upload their cart', function ()
 {
 
     $client = User::factory()->create(['type' => 'client']);

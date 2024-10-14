@@ -48,11 +48,14 @@
 
 <script setup>
 import { toRaw } from "vue";
+import { useStore } from "vuex";
 
 const { data } = defineProps(["data"]);
+const store = useStore();
+
 function pay() {
   store
-    .dispatch("checkoutOrder", this.data)
+    .dispatch("checkoutOrder", data)
     .then((response) => {
       window.open(response.data, "_blank").focus();
     })

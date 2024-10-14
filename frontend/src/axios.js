@@ -19,12 +19,21 @@ client.interceptors.request.use((config) => {
   return config;
 });
 
-client.interceptors.response.use((config) => {
-  // Capture the uniqueId from the response headers
-  if (!store.state.user.uniqueID) {
-    store.commit("setUniqueID", config.headers["x-unique-id"]);
+client.interceptors.response.use(
+  (config) => {
+    // Capture the uniqueId from the response headers
+    if (!store.state.user.uniqueID) {
+      store.commit("setUniqueID", config.headers["x-unique-id"]);
+    }
+    return config;
+  },
+  (config) => {
+    if (config.response.status === 401) {
+      store.commit("setToken", null);
+      store.commit("setUser", { user: null, isAdmin: false });
+    }
+    return Promise.reject(config);
   }
-  return config;
-});
+);
 
 export default client;

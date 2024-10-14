@@ -76,8 +76,7 @@ const tableHeader = [
   },
   {
     title: "Actions",
-    name: "published",
-
+    name: "action",
     component: { key: OrderActionCell },
   },
 ];

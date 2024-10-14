@@ -1,25 +1,24 @@
 <template>
-    <div>
-        <div
-            :class="[
-                'px-2 capitalize text-white rounded bg-green-500',
-                {
-                    'bg-green-500': status == 'paid' || status == 'completed',
-                },
-                {
-                    'bg-red-500': status == 'failed' || status == 'cancelled',
-                },
-                {
-                    'bg-gray-500': status == 'shipped' || status == 'unpaid',
-                },
-                { 'bg-yellow-500': status == 'pending' },
-            ]"
-        >
-            {{ status }}
-        </div>
+  <div :class="['flex justify-center items-center  w-full ']">
+    <div
+      :class="[
+        'px-2 capitalize text-white rounded bg-green-500',
+        {
+          'bg-green-500': data.status == 'paid' || data.status == 'completed',
+        },
+        {
+          'bg-red-500': data.status == 'failed' || data.status == 'cancelled',
+        },
+        {
+          'bg-gray-500': data.status == 'shipped' || data.status == 'unpaid',
+        },
+        { 'bg-yellow-500': data.status == 'pending' },
+      ]"
+    >
+      {{ data.status }}
     </div>
+  </div>
 </template>
 <script setup>
-const { status } = defineProps(["status"]);
-console.log(status);
+const { data } = defineProps(["data"]);
 </script>

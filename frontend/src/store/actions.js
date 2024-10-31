@@ -57,7 +57,7 @@ const actions = {
     });
   },
   fetchCountries({ commit }) {
-    return axios.get("/country").then((response) => {
+    return axios.get("/countries").then((response) => {
       return response;
     });
   },
@@ -77,7 +77,7 @@ const actions = {
       } else form.append(key, value);
     }
 
-    return axios.post("/admin/product", form).then((response) => {
+    return axios.post("/admin/products", form).then((response) => {
       return response;
     });
   },
@@ -93,7 +93,7 @@ const actions = {
       } else form.append(key, value);
     }
 
-    return axios.post("/admin/user", form).then((response) => {
+    return axios.post("/admin/users", form).then((response) => {
       return response;
     });
   },
@@ -110,7 +110,7 @@ const actions = {
       } else form.append(key, value);
     }
 
-    return axios.post(`/admin/user/${user.id}`, form).then((response) => {
+    return axios.post(`/admin/users/${user.id}`, form).then((response) => {
       return response;
     });
   },
@@ -131,13 +131,15 @@ const actions = {
       } else form.append(key, value);
     }
 
-    return axios.post(`/admin/product/${product.id}`, form).then((response) => {
-      return response;
-    });
+    return axios
+      .post(`/admin/products/${product.id}`, form)
+      .then((response) => {
+        return response;
+      });
   },
   fetchCategories({ commit }, options = {}) {
     return axios
-      .get(options?.url || "/admin/category", {
+      .get(options?.url || "/admin/categories", {
         params: options.params,
       })
       .then((response) => {
@@ -145,23 +147,23 @@ const actions = {
       });
   },
   fetchCategoriesForUser({ commit }) {
-    return axios.get("/category").then((response) => {
+    return axios.get("/categories").then((response) => {
       return response;
     });
   },
   fetchCategory({ commit }, id) {
-    return axios.get(`/admin/category/${id}`).then((response) => {
+    return axios.get(`/admin/categories/${id}`).then((response) => {
       return response;
     });
   },
   storeCategory({ commit }, category) {
-    return axios.post("/admin/category", category).then((response) => {
+    return axios.post("/admin/categories", category).then((response) => {
       return response;
     });
   },
   updateCategory({ commit }, category) {
     return axios
-      .put(`/admin/category/${category.id}`, category)
+      .put(`/admin/categories/${category.id}`, category)
       .then((response) => {
         return response;
       });
@@ -173,7 +175,7 @@ const actions = {
   },
   fetchProducts({ commit }, options = {}) {
     return axios
-      .get(options?.url || "/admin/product", {
+      .get(options?.url || "/admin/products", {
         params: options?.params,
       })
       .then((response) => {
@@ -182,13 +184,13 @@ const actions = {
   },
 
   fetchProduct({ commit }, id) {
-    return axios.get(`/admin/product/${id}`).then((response) => {
+    return axios.get(`/admin/products/${id}`).then((response) => {
       return response;
     });
   },
   fetchProductsForUser({ commit }, options = {}) {
     return axios
-      .get(options?.url || "/product", {
+      .get(options?.url || "/products", {
         params: options?.params,
       })
       .then((response) => {
@@ -198,9 +200,9 @@ const actions = {
   fetchProductForUser({ commit }, by) {
     let url;
     if (by?.id) {
-      url = `/product/${by.id}`;
+      url = `/products/${by.id}`;
     } else if (by?.slug) {
-      url = `/product/${by.slug}`;
+      url = `/products/${by.slug}`;
     }
     return axios.get(url).then((response) => {
       return response;
@@ -208,7 +210,7 @@ const actions = {
   },
   fetchUsers({ commit }, options) {
     return axios
-      .get(options?.url || "/admin/user", {
+      .get(options?.url || "/admin/users", {
         params: options.params,
       })
       .then((response) => {
@@ -216,7 +218,7 @@ const actions = {
       });
   },
   fetchUser({ commit }, id) {
-    return axios.get(`/admin/user/${id}`).then((response) => {
+    return axios.get(`/admin/users/${id}`).then((response) => {
       return response;
     });
   },
@@ -233,7 +235,7 @@ const actions = {
   },
   fetchReports({ commit }, period) {
     return axios
-      .get("/admin/report", {
+      .get("/admin/reports", {
         params: {
           period,
         },
@@ -244,17 +246,17 @@ const actions = {
   },
 
   removeProduct({ commit }, id) {
-    return axios.delete(`/admin/product/${id}`).then((response) => {
+    return axios.delete(`/admin/products/${id}`).then((response) => {
       return response;
     });
   },
   removeCategory({ commit }, id) {
-    return axios.delete(`/admin/category/${id}`).then((response) => {
+    return axios.delete(`/admin/categories/${id}`).then((response) => {
       return response;
     });
   },
   removeUser({ commit }, id) {
-    return axios.delete(`/admin/user/${id}`).then((response) => {
+    return axios.delete(`/admin/users/${id}`).then((response) => {
       return response;
     });
   },
@@ -317,7 +319,7 @@ const actions = {
   // Orders (user)
   fetchOrders({ commit }, options = {}) {
     return axios
-      .get(options?.url || "/order", {
+      .get(options?.url || "/orders", {
         params: options.params,
       })
       .then((response) => {
@@ -326,14 +328,14 @@ const actions = {
   },
 
   fetchOrder({ commit }, id) {
-    return axios.get(`/order/${id}`).then((response) => {
+    return axios.get(`/orders/${id}`).then((response) => {
       return response;
     });
   },
   orderFulfilment({ commit }, session_id) {
     return axios
       .post(
-        `/payment/success`,
+        `/payments/success`,
         {},
         {
           params: { session_id },
@@ -347,7 +349,7 @@ const actions = {
   // Orders (admin)
   fetchOrdersForAdmin({ commit }, options = {}) {
     return axios
-      .get(options?.url || "/admin/order", {
+      .get(options?.url || "/admin/orders", {
         params: options.params,
       })
       .then((response) => {
@@ -356,10 +358,10 @@ const actions = {
   },
   checkoutOrder({ commit }, order) {
     const host = import.meta.env.VITE_BASE_URL;
-    const success_url = host + "/order";
+    const success_url = host + "/orders";
     const cancel_url = host + "/cancel";
     return axios
-      .post(`/checkout/order/${order.id}`, {
+      .post(`/checkout/orders/${order.id}`, {
         success_url,
         cancel_url,
       })
@@ -370,7 +372,7 @@ const actions = {
 
   checkout({ commit, state }) {
     const host = import.meta.env.VITE_BASE_URL;
-    const success_url = host + "/order";
+    const success_url = host + "/orders";
     const cancel_url = host + "/cancel";
     return axios
       .post(`/checkout`, {

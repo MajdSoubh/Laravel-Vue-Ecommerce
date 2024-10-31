@@ -33,23 +33,23 @@ Route::group([
 ], function ()
 {
     // Category
-    Route::apiResource('/category', AdminCategoryController::class);
+    Route::apiResource('/categories', AdminCategoryController::class);
     Route::get('categories/tree', [AdminCategoryController::class, 'getAsTree']);
 
     // Product
-    Route::apiResource('/product', AdminProductController::class);
+    Route::apiResource('/products', AdminProductController::class);
 
     // User
-    Route::apiResource('/user', UserController::class);
+    Route::apiResource('/users', UserController::class);
 
     // Order
-    Route::apiResource('/order', AdminOrderController::class)->only('show', 'index');
+    Route::apiResource('/orders', AdminOrderController::class)->only('show', 'index');
 
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index']);
 
     // Report
-    Route::get('/report', [ReportController::class, 'index']);
+    Route::get('/reports', [ReportController::class, 'index']);
 });
 
 // User CRUD Routes
@@ -64,22 +64,22 @@ Route::group(['as' => 'user.', 'middleware' => 'throttle:80,1'], function ()
         Route::get('/cart', [CartController::class, 'getCurrentUserCart']);
         Route::post('/cart', [CartController::class, 'setCart']);
         Route::delete('/cart/{item}', [CartController::class, 'delete']);
-        Route::apiResource('/order', UserOrderController::class)->only('index', 'show');
-        Route::post('/checkout/order/{order}', [CheckoutController::class, 'checkoutOrder']);
+        Route::apiResource('/orders', UserOrderController::class)->only('index', 'show');
+        Route::post('/checkout/orders/{order}', [CheckoutController::class, 'checkoutOrder']);
         Route::post('/checkout', [CheckoutController::class, 'checkout']);
         Route::post('/checkout/success', [CheckoutController::class, 'success']);
 
         // Profile
         Route::post("/password", [UserProfileController::class, 'updatePassword']);
-        Route::get("/country", [UserProfileController::class, 'getCountries']);
+        Route::get("/countries", [UserProfileController::class, 'getCountries']);
         Route::post("/customer/details", [UserProfileController::class, 'updateDetails']);
         Route::get("/customer/details", [UserProfileController::class, 'getDetails']);
     });
 
     // Public Routes
-    Route::get('/category', [UserCategoryController::class, 'index']);
+    Route::get('/categories', [UserCategoryController::class, 'index']);
     Route::put('/cart', [CartController::class, 'updateCart']);
-    Route::get('/product', [UserProductController::class, 'index']);
-    Route::get('/product/{product}', [UserProductController::class, 'show']);
-    Route::post('/payment/success', [CheckoutController::class, 'success']);
+    Route::get('/products', [UserProductController::class, 'index']);
+    Route::get('/products/{product}', [UserProductController::class, 'show']);
+    Route::post('/payments/success', [CheckoutController::class, 'success']);
 });

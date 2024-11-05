@@ -22,8 +22,11 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 class CheckoutController extends Controller
 {
 
+    public function __construct(public PaymentService $paymentService)
+    {
+    }
 
-    public function checkout(CheckoutRequest $request, PaymentService $paymentService)
+    public function checkout(CheckoutRequest $request)
     {
         /** @var App\Models\User $user */
         $user = auth()->user();
@@ -85,7 +88,7 @@ class CheckoutController extends Controller
             }
 
             // Create payment session
-            $session = $paymentService->initiateCheckout($lineItems, $successURL, $cancelURL);
+            $session = $this->paymentService->initiateCheckout($lineItems, $successURL, $cancelURL);
 
 
             // Create Order
@@ -128,14 +131,14 @@ class CheckoutController extends Controller
     }
 
 
-    public function success(Request $request, PaymentService $paymentService)
+    public function success(Request $request)
     {
         try
         {
             $sessionID = $request->get('session_id');
 
             // Get payment customer
-            $customer = $paymentService->finalizeOrder($sessionID);
+            $customer = $this->paymentService->finalizeOrder($sessionID);
 
             $payment = Payment::query()
                 ->where(['session_id' => $sessionID])
@@ -187,7 +190,7 @@ class CheckoutController extends Controller
         }
 
         // Create payment session
-        $session = $paymentService->initiateCheckout($lineItems, $successURL, $cancelURL);
+        $session = $this->paymentService->initiateCheckout($lineItems, $successURL, $cancelURL);
 
 
         $order->payment->session_id = $session->id;

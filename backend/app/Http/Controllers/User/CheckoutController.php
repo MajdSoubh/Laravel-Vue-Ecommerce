@@ -11,6 +11,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Payment;
 use App\Models\Product;
+use App\Services\PaymentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -20,7 +21,9 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class CheckoutController extends Controller
 {
-    public function checkout(CheckoutRequest $request)
+
+
+    public function checkout(CheckoutRequest $request, PaymentService $paymentService)
     {
         /** @var App\Models\User $user */
         $user = auth()->user();
@@ -29,10 +32,10 @@ class CheckoutController extends Controller
             return response()->json(['message' => "Please Complete your profile shippment details"], Response::HTTP_BAD_REQUEST);
         }
         $items = $request->input('items');
-        $successUrl = $request->input('success_url');
-        $cancelUrl = $request->input('cancel_url');
+        $successURL = $request->input('success_url');
+        $cancelURL = $request->input('cancel_url');
 
-        \Stripe\Stripe::setApiKey(getenv('STRIPE_SECRET_KEY'));
+        // \Stripe\Stripe::setApiKey(getenv('STRIPE_SECRET_KEY'));
         $ids = Arr::pluck($items, 'product_id');
         $products = Product::whereIn('id', $ids)->get();
         $cartItems = Arr::keyBy($items, 'product_id');
@@ -81,14 +84,8 @@ class CheckoutController extends Controller
                 }
             }
 
-            // Create Strip Payment Session
-            $session = \Stripe\Checkout\Session::create([
-                'line_items' => $lineItems,
-                'mode' => 'payment',
-                'customer_creation' => 'always',
-                'success_url' => $successUrl . '?session_id={CHECKOUT_SESSION_ID}',
-                'cancel_url' => $cancelUrl,
-            ]);
+            // Create payment session
+            $session = $paymentService->initiateCheckout($lineItems, $successURL, $cancelURL);
 
 
             // Create Order
@@ -131,20 +128,17 @@ class CheckoutController extends Controller
     }
 
 
-    public function success(Request $request)
+    public function success(Request $request, PaymentService $paymentService)
     {
-        \Stripe\Stripe::setApiKey(getenv('STRIPE_SECRET_KEY'));
         try
         {
-            $session_id = $request->get('session_id');
-            $session = \Stripe\Checkout\Session::retrieve($session_id);
-            if (!$session)
-            {
-                return response()->json(['message' => 'invalid session id'], Response::HTTP_BAD_REQUEST);
-            }
+            $sessionID = $request->get('session_id');
+
+            // Get payment customer
+            $customer = $paymentService->finalizeOrder($sessionID);
 
             $payment = Payment::query()
-                ->where(['session_id' => $session_id])
+                ->where(['session_id' => $sessionID])
                 ->whereIn('status', [PaymentStatus::Pending, PaymentStatus::Paid])
                 ->first();
             if (!$payment)
@@ -153,9 +147,9 @@ class CheckoutController extends Controller
             }
             if ($payment->status === PaymentStatus::Pending->value)
             {
-                $this->updateOrderAndSession($payment);
+                $this->changePaymentAndOrderStatusToPaid($payment);
             }
-            $customer = \Stripe\Customer::retrieve($session->customer);
+            $customer = \Stripe\Customer::retrieve($customer);
 
             return response()->json(['message' => "Order has been completed", 'customer' => $customer], Response::HTTP_OK);
         }
@@ -164,7 +158,7 @@ class CheckoutController extends Controller
             return response()->json(['message' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
         }
     }
-    public function checkoutOrder(Order $order, Request $request)
+    public function checkoutOrder(Order $order, Request $request, PaymentService $paymentService)
     {
 
         /** @var App\Models\User $user */
@@ -173,10 +167,9 @@ class CheckoutController extends Controller
         {
             return response()->json(['message' => "Please Complete your profile shippment details"], Response::HTTP_BAD_REQUEST);
         }
-        $successUrl = $request->input('success_url');
-        $cancelUrl = $request->input('cancel_url');
+        $successURL = $request->input('success_url');
+        $cancelURL = $request->input('cancel_url');
 
-        \Stripe\Stripe::setApiKey(getenv('STRIPE_SECRET_KEY'));
         $lineItems = [];
         foreach ($order->items as $item)
         {
@@ -193,12 +186,9 @@ class CheckoutController extends Controller
             ];
         }
 
-        $session = \Stripe\Checkout\Session::create([
-            'line_items' => $lineItems,
-            'mode' => 'payment',
-            'success_url' => $successUrl . '?session_id={CHECKOUT_SESSION_ID}',
-            'cancel_url' => $cancelUrl
-        ]);
+        // Create payment session
+        $session = $paymentService->initiateCheckout($lineItems, $successURL, $cancelURL);
+
 
         $order->payment->session_id = $session->id;
         $order->payment->save();
@@ -206,7 +196,7 @@ class CheckoutController extends Controller
 
         return $session->url;
     }
-    private function updateOrderAndSession(Payment $payment)
+    private function changePaymentAndOrderStatusToPaid(Payment $payment)
     {
         DB::beginTransaction();
         try

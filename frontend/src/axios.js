@@ -28,7 +28,12 @@ client.interceptors.response.use(
     return config;
   },
   (config) => {
-    if (config.response.status === 401) {
+    if (!config?.response || config.response.status >= 500) {
+      store.commit("notify", {
+        type: "error",
+        message: "Unexpected error happen",
+      });
+    } else if (!config?.response?.status === 401) {
       store.commit("setToken", null);
       store.commit("setUser", { user: null, isAdmin: false });
     }

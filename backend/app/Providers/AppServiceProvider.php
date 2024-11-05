@@ -17,7 +17,7 @@ class AppServiceProvider extends ServiceProvider
         // Binding the interface to the default payment implementation (Stripe)
         $this->app->bind(PaymentGatewayInterface::class, function ($app)
         {
-            return new StripePayment(); // Or use PayPalPaymentService based on your needs
+            return new StripePayment();
         });
     }
 

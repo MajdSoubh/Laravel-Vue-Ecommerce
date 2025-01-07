@@ -25,7 +25,11 @@ const actions = {
     });
   },
   forgetPassword({ commit }, data) {
-    commit("forgetPassword", data.email);
+    console.log(data);
+    // commit("forgetPassword", data.email);
+    return axios
+      .post("forget-password", { email: data.email })
+      .then((response) => response);
   },
   register({ commit, dispatch }, { user, isAdmin }) {
     let url = "/register";

@@ -33,8 +33,8 @@ Route::group([
 ], function ()
 {
     // Category
-    Route::apiResource('/categories', AdminCategoryController::class);
     Route::get('categories/tree', [AdminCategoryController::class, 'getAsTree']);
+    Route::apiResource('/categories', AdminCategoryController::class);
 
     // Product
     Route::apiResource('/products', AdminProductController::class);

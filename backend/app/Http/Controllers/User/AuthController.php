@@ -16,11 +16,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AuthController extends Controller
 {
-    public AuthService $authService;
 
-    public function __construct()
+    public function __construct(public AuthService $authService)
     {
-        $this->authService = new AuthService;
     }
 
     public function login(LoginRequest $request)

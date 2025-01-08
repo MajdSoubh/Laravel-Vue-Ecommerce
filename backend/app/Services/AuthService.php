@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
 
 final readonly class AuthService
 {
@@ -62,9 +63,9 @@ final readonly class AuthService
         return false;
     }
 
-    public function sendResetLink(array $credentials, string $route = null)
+    public function sendResetLink(array $credentials, string $resetURL)
     {
-        $this->buildMailMessage($route);
+        $this->buildMailMessage($resetURL);
 
         $status = Password::sendResetLink($credentials);
 
@@ -84,11 +85,11 @@ final readonly class AuthService
         });
         return $status;
     }
-    protected function buildMailMessage(string $route = null)
+    protected function buildMailMessage(string $resetURL)
     {
-        ResetPassword::toMailUsing(function ($notifiable, $token) use ($route)
+        ResetPassword::toMailUsing(function ($notifiable, $token) use ($resetURL)
         {
-            $url = $route ? $route . "?$token" : route('password.reset', [$token]);
+            $url = Str::finish($resetURL, '/') + $token;
 
             return (new MailMessage)->subject(Lang::get('Reset Password Notification'))
                 ->line(Lang::get('You are receiving this email because we received a password reset request for your account.'))

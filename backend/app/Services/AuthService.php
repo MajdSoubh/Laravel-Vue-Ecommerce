@@ -11,12 +11,21 @@ use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 
+/**
+ * AuthService handles authentication-related operations such as login, registration, logout, and password reset.
+ */
 final readonly class AuthService
 {
-
+    /**
+     * Logs in a user.
+     *
+     * @param array $credentials User credentials.
+     * @param bool $remember Whether to remember the user's session. Defaults to false.
+     * @param string $type The user type to validate (e.g., 'admin', 'user').
+     * @return bool|array Returns false if login fails. Returns ['user' => User, 'token' => string] on success.
+     */
     public function login(array $credentials, bool $remember = false, string $type): bool | array
     {
-
         if (!Auth::attempt($credentials, $remember))
         {
             return false;
@@ -36,6 +45,13 @@ final readonly class AuthService
         return ['user' => $user, 'token' => $token];
     }
 
+    /**
+     * Registers a new user.
+     *
+     * @param array $data User data.
+     * @param string $type The user type to assign (e.g., 'admin', 'user').
+     * @return array Returns ['user' => User, 'token' => string] on success.
+     */
     public function register(array $data, string $type)
     {
         $user = User::create([
@@ -50,6 +66,12 @@ final readonly class AuthService
         return ['user' => $user, 'token' => $token];
     }
 
+    /**
+     * Logs out the current user.
+     *
+     * @param string $guard The authentication guard to use..
+     * @return bool Returns true if logout is successful, false otherwise.
+     */
     public function logout(string $guard = null): bool
     {
         /** @var \App\Models\User $user */
@@ -63,6 +85,13 @@ final readonly class AuthService
         return false;
     }
 
+    /**
+     * Sends a password reset link to the user's email.
+     *
+     * @param array $credentials User credentials.
+     * @param string $resetURL The base URL for the password reset link.
+     * @return string Returns the status of the password reset link sending process.
+     */
     public function sendResetLink(array $credentials, string $resetURL)
     {
         $this->buildMailMessage($resetURL);
@@ -72,19 +101,29 @@ final readonly class AuthService
         return $status;
     }
 
-    public function resetPassword(array $credentials, bool $logoutAllDevices = true)
+    /**
+     * Resets the user's password.
+     *
+     * @param array $credentials Password reset credentials.
+     * @param bool $logoutAllDevices Whether to log the user out from all devices.
+     * @return string Returns the status of the password reset process.
+     */
+    public function resetPassword(array $credentials)
     {
-
         $status = Password::reset($credentials, function (User $user, $password)
         {
             $user->password = Hash::make($password);
             $user->save();
-            // if ($request->has("logoutAllDevices") && $request->logoutAllDevices)
-            // {
-            // }
         });
         return $status;
     }
+
+    /**
+     * Builds the email message for the password reset notification.
+     *
+     * @param string $resetURL The base URL for the password reset link.
+     * @return void
+     */
     protected function buildMailMessage(string $resetURL)
     {
         ResetPassword::toMailUsing(function ($notifiable, $token) use ($resetURL)

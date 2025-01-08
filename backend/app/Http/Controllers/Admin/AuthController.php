@@ -59,7 +59,7 @@ class AuthController extends Controller
 
     public function forgetPassword(ForgetPasswordRequest $request)
     {
-        $status = $this->authService->sendResetLink($request->only('email'), route('admin.password.reset'));
+        $status = $this->authService->sendResetLink($request->only('email'), $request->resetURL);
 
         return $status === Password::RESET_LINK_SENT ? response()->json(['success' => true, 'message' => __($status)], Response::HTTP_OK) : response()->json(['success' => false, 'message' => __($status)], Response::HTTP_BAD_REQUEST);
     }

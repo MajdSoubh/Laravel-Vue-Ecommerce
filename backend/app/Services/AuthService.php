@@ -89,7 +89,7 @@ final readonly class AuthService
     {
         ResetPassword::toMailUsing(function ($notifiable, $token) use ($resetURL)
         {
-            $url = Str::finish($resetURL, '/') + $token;
+            $url = Str::finish($resetURL, '/') . $token;
 
             return (new MailMessage)->subject(Lang::get('Reset Password Notification'))
                 ->line(Lang::get('You are receiving this email because we received a password reset request for your account.'))

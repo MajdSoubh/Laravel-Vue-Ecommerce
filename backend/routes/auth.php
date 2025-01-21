@@ -1,21 +1,15 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-
-// Admin
-use App\Http\Controllers\Admin\AuthController as AdminAuthController;
-
-// User
-use App\Http\Controllers\User\AuthController as UserAuthController;
-
+use App\Http\Controllers\AuthController;
 
 
 // Admin Auth Routes
 Route::group([
     'prefix' => '/admin',
     'as' => 'admin.',
-    'controller' => AdminAuthController::class,
-    'middleware' => 'throttle:5,1'
+    'controller' => AuthController::class,
+    'middleware' => 'throttle:10,1'
 ], function ()
 {
     Route::middleware(['guest:sanctum,admin'])->group(function ()
@@ -33,8 +27,9 @@ Route::group([
 
 // User Auth Routes
 Route::group([
-    'as' => 'user.',  'controller' => UserAuthController::class,
-    'middleware' => 'throttle:5,1'
+    'as' => 'user.',
+    'controller' => AuthController::class,
+    'middleware' => 'throttle:10,1'
 ], function ()
 {
     Route::middleware('guest:sanctum,client')->group(function ()

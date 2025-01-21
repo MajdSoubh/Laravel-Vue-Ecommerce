@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers;
 
 use App\Enums\UserTypes;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
-use App\Http\Resources\Admin\AdminResource;
+use App\Http\Resources\User\UserResource;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
@@ -17,11 +17,8 @@ use Symfony\Component\HttpFoundation\Response;
 class AuthController extends Controller
 {
 
-    public AuthService $authService;
-
-    public function __construct()
+    public function __construct(public AuthService $authService)
     {
-        $this->authService = new AuthService;
     }
 
     public function login(LoginRequest $request)
@@ -30,7 +27,13 @@ class AuthController extends Controller
         $remember = $credentials['remember'] ?? false;
         unset($credentials['remember']);
 
-        $result =  $this->authService->login($credentials, $remember, UserTypes::admin->value);
+        $userType = UserTypes::client->value;
+        if (request()->routeIs('admin.login'))
+        {
+            $userType = UserTypes::admin->value;
+        }
+
+        $result =  $this->authService->login($credentials, $remember, $userType);
 
         if (!$result)
         {
@@ -45,7 +48,7 @@ class AuthController extends Controller
     {
         $data = $request->validated();
 
-        $result = $this->authService->register($data, UserTypes::admin->value);
+        $result = $this->authService->register($data, UserTypes::client->value);
 
         return response()->json(['user' => $result['user'], 'token' => $result['token']], Response::HTTP_CREATED);
     }
@@ -78,8 +81,8 @@ class AuthController extends Controller
         return $status === Password::PASSWORD_RESET ?  response()->json(['success' => true, 'message' => __($status)], Response::HTTP_OK) : response()->json(['success' => false, 'message' => __($status)], Response::HTTP_BAD_REQUEST);
     }
 
-    public function getAdmin()
+    public function getUser()
     {
-        return new AdminResource(Auth::user());
+        return new UserResource(Auth::user());
     }
 }

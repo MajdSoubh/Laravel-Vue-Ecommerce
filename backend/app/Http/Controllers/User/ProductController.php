@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\User\Product\ProductResource;
+use App\Http\Resources\Product\ProductResource;
 use App\Models\Product;
 use Illuminate\Database\Eloquent\Builder;
 use Symfony\Component\HttpFoundation\Response;
@@ -38,10 +38,6 @@ class ProductController extends Controller
             })
             ->orderBy('created_at', 'desc')
             ->paginate($perPage);
-
-
-
-
 
         return ProductResource::collection($products);
     }

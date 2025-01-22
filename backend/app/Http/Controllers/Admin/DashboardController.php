@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Enums\OrderStatus;
 use App\Enums\UserTypes;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\User\Order\OrderResource;
+use App\Http\Resources\Order\OrderResource;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\User;

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\User\Order\OrderResource;
+use App\Http\Resources\Order\OrderResource;
 use App\Models\Order;
 use Symfony\Component\HttpFoundation\Response;
 

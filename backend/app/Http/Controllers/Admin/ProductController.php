@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\Admin\Product\StoreRequest as ProductStoreRequest;
 use App\Http\Requests\Admin\Product\UpdateRequest as ProductUpdateRequest;
-use App\Http\Resources\Admin\Product\ProductResource;
+use App\Http\Resources\Product\ProductResource;
 use App\Models\Product;
 use App\Traits\ImageHelper;
 use  App\Http\Controllers\Controller;

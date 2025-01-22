@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Resources\User\Product;
+namespace App\Http\Resources\Product;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -21,9 +21,15 @@ class ProductResource extends JsonResource
             "price" => $this->price,
             "quantity" => $this->quantity,
             "description" => $this->description,
-            "published" => $this->published,
+            "created_at" => $this->created_at,
+            "updated_at" => $this->updated_at,
             "images" => $this->images,
             "categories" => $this->categories,
+            $this->mergeWhen(($request->user() && $request->user()->is_admin), [
+                "published" => $this->published,
+                "created_by" => $this->created_by,
+                "updated_by" => $this->updated_by,
+            ]),
 
 
         ];

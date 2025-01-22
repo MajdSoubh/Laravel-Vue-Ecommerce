@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Resources\User\Order;
+namespace App\Http\Resources\Order;
 
 use Carbon\Carbon;
 use Illuminate\Http\Request;

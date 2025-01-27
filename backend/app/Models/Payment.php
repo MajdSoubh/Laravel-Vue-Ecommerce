@@ -16,4 +16,9 @@ class Payment extends Model
     {
         return $this->belongsTo(Order::class);
     }
+
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
 }

@@ -65,13 +65,19 @@ class User extends Authenticatable
     }
     public function orders()
     {
-        return  $this->hasMany(Order::class);
+        return  $this->hasMany(Order::class, 'created_by');
     }
 
     public function cart()
     {
         return $this->hasMany(Cart::class);
     }
+
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
+
     public function details()
     {
         return $this->hasOne(ClientAddresses::class);

@@ -337,17 +337,9 @@ const actions = {
     });
   },
   orderFulfilment({ commit }, session_id) {
-    return axios
-      .post(
-        `/payments/success`,
-        {},
-        {
-          params: { session_id },
-        }
-      )
-      .then((response) => {
-        return response;
-      });
+    return axios.post(`/payments/success`, { session_id }).then((response) => {
+      return response;
+    });
   },
 
   // Orders (admin)
@@ -376,7 +368,7 @@ const actions = {
 
   checkout({ commit, state }) {
     const host = import.meta.env.VITE_BASE_URL;
-    const success_url = host + "/orders";
+    const success_url = host + "/order";
     const cancel_url = host + "/cancel";
     return axios
       .post(`/checkout`, {

@@ -3,7 +3,6 @@
     id="cartMenu"
     :class="[
       'w-0  h-screen  py-6 overflow-hidden fixed top-0 right-0 bg-white   flex  flex-col gap-5  transition-all rounded-br-xl ',
-      ,
       { ' w-screen md:w-[24rem] max-w-[100vw] px-4 active ': show },
     ]"
   >
@@ -149,6 +148,7 @@ import { inject, onMounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import Spinner from "../../components/Spinner.vue";
+
 const emits = defineEmits(["toggle"]);
 const router = useRouter();
 const { show } = defineProps(["show"]);
@@ -200,12 +200,27 @@ async function getItems() {
 }
 
 function handleCheckout() {
+  // Open the popup immediately on user action
+  const popup = window.open("about:blank", "_blank");
+
+  // Close Cart
+  toggle();
   store
     .dispatch("checkout")
     .then((response) => {
-      window.open(response.data, "_blank").focus();
+      // Update the popup URL after the request succeeds
+      if (popup) {
+        popup.location.href = response.data;
+        popup.focus();
+      }
     })
     .catch(({ response }) => {
+      // Close the popup if the request fails
+      if (popup) {
+        popup.close();
+      }
+
+      // Show an error message
       store.commit("notify", {
         type: "error",
         message: response.data.message,

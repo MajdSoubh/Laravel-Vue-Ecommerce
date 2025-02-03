@@ -2,9 +2,10 @@
 
 namespace App\Http\Requests\User\Cart;
 
-use App\Rules\ProductQuantityChecker;
-use Illuminate\Foundation\Http\FormRequest;
+use App\Rules\BulkProductExistenceChecker;
+use App\Rules\BulkProductQuantityChecker;
 use Illuminate\Validation\Rule;
+use Illuminate\Foundation\Http\FormRequest;
 
 class StoreRequest extends FormRequest
 {
@@ -23,23 +24,13 @@ class StoreRequest extends FormRequest
      */
     public function rules(): array
     {
+
+
         return [
             'items' => "required|array",
-            'items.*.product_id' => 'required|exists:products,id',
-            'items.*.quantity' => ['required', 'integer', 'min:1'],
-            'items.*' =>  Rule::forEach(function ($value)
-            {
-                return [
-                    new ProductQuantityChecker($value['product_id'], $value['quantity'])
-                ];
-            }),
-        ];
-    }
-
-    public function messages()
-    {
-        return [
-            'items.*.product_id.exists' => "The requested product is not available",
+            'items' => ["required", "bail",  new BulkProductExistenceChecker, new BulkProductQuantityChecker],
+            'items.*.quantity' => ['required', 'bail', 'integer', 'min:1'],
+            'items.*.product_id' => ['required', 'bail', 'integer', 'min:1'],
         ];
     }
 }

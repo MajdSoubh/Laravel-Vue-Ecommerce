@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Models\User;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Password;
@@ -26,21 +25,16 @@ final readonly class AuthService
      */
     public function login(array $credentials, bool $remember = false, string $type): bool | array
     {
-        if (!Auth::attempt($credentials, $remember))
+        $user = User::where('email', $credentials['email'])->first();
+
+        if (!$user || $user->type !== $type || !Hash::check($credentials['password'], $user->password))
         {
             return false;
         }
 
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
+        $expiration = $remember ? now()->addDays(30) : null;
 
-        if ($user->type !== $type)
-        {
-            Auth::logout();
-            return false;
-        }
-
-        $token = $user->createToken('main')->plainTextToken;
+        $token = $user->createToken('main', ['*'], $expiration)->plainTextToken;
 
         return ['user' => $user, 'token' => $token];
     }

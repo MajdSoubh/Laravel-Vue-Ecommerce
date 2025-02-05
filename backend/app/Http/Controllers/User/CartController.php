@@ -50,7 +50,7 @@ class CartController extends Controller
         $cartItems = Cart::whereIn('id', $cartIds)->with('product')->get();
 
         CartEvent::dispatch(auth()->user()->id, 'overwrite', $cartItems->toArray());
-        Notification::dispatch(__('cart.uploaded'), 'success'); // "تم رفع السلة بنجاح"
+        Notification::dispatch(__('cart.uploaded'), 'success');
 
         return CartResource::collection($cartItems);
     }
@@ -78,7 +78,7 @@ class CartController extends Controller
         );
 
         CartEvent::dispatch(auth()->user()->id, 'merge', $cartItem);
-        Notification::dispatch(__('cart.updated', ['product' => $cartItem['product']['title']]), 'success'); // "تم تحديث الكمية لـ :product"
+        Notification::dispatch(__('cart.updated', ['product' => $cartItem['product']['title']]), 'success');
 
         return response()->json(['success' => true, 'data' => $cartItem]);
     }
@@ -93,7 +93,7 @@ class CartController extends Controller
     {
         $cartItem = $this->cartService->removeItem(auth()->user()->id, $productId);
 
-        Notification::dispatch(__('cart.removed', ['product' => $cartItem->product->title]), 'success'); // "تم حذف :product من السلة"
+        Notification::dispatch(__('cart.removed', ['product' => $cartItem->product->title]), 'success');
 
         return response()->json([
             'success' => true,

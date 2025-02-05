@@ -16,11 +16,21 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AuthController extends Controller
 {
-
+    /**
+     * Constructor to inject AuthService dependency.
+     *
+     * @param AuthService $authService The service for authentication-related operations.
+     */
     public function __construct(public AuthService $authService)
     {
     }
 
+    /**
+     * Logs in a user.
+     *
+     * @param LoginRequest $request The request containing login credentials.
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function login(LoginRequest $request)
     {
         $credentials = $request->validated();
@@ -33,17 +43,22 @@ class AuthController extends Controller
             $userType = UserTypes::admin->value;
         }
 
-        $result =  $this->authService->login($credentials, $remember, $userType);
+        $result = $this->authService->login($credentials, $remember, $userType);
 
         if (!$result)
         {
-            return response()->json(['message' => 'The credentials are not correct'], Response::HTTP_UNPROCESSABLE_ENTITY);
+            return response()->json(['message' => __('auth.invalid_credentials')], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
-
 
         return response()->json(['user' => $result['user'], 'token' => $result['token']]);
     }
 
+    /**
+     * Registers a new user.
+     *
+     * @param RegisterRequest $request The request containing user registration data.
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function register(RegisterRequest $request)
     {
         $data = $request->validated();
@@ -53,6 +68,11 @@ class AuthController extends Controller
         return response()->json(['user' => $result['user'], 'token' => $result['token']], Response::HTTP_CREATED);
     }
 
+    /**
+     * Logs out the current user.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function logout()
     {
         $this->authService->logout();
@@ -60,13 +80,28 @@ class AuthController extends Controller
         return response()->json(['success' => true], Response::HTTP_OK);
     }
 
+    /**
+     * Sends a password reset link to the user's email.
+     *
+     * @param ForgetPasswordRequest $request The request containing the user's email.
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function forgetPassword(ForgetPasswordRequest $request)
     {
         $status = $this->authService->sendResetLink($request->only('email'), $request->resetURL);
 
-        return $status === Password::RESET_LINK_SENT ? response()->json(['success' => true, 'message' => __($status)], Response::HTTP_OK) : response()->json(['success' => false, 'message' => __($status)], Response::HTTP_BAD_REQUEST);
+        return $status === Password::RESET_LINK_SENT
+            ? response()->json(['success' => true, 'message' => __($status)], Response::HTTP_OK)
+            : response()->json(['success' => false, 'message' => __($status)], Response::HTTP_BAD_REQUEST);
     }
 
+    /**
+     * Resets the user's password.
+     *
+     * @param ResetPasswordRequest $request The request containing the new password.
+     * @param string|null $token The password reset token.
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function resetPassword(ResetPasswordRequest $request, $token = null)
     {
         $_token = $token ? $token : $request->token;
@@ -78,9 +113,16 @@ class AuthController extends Controller
 
         $status = $this->authService->resetPassword($credentials);
 
-        return $status === Password::PASSWORD_RESET ?  response()->json(['success' => true, 'message' => __($status)], Response::HTTP_OK) : response()->json(['success' => false, 'message' => __($status)], Response::HTTP_BAD_REQUEST);
+        return $status === Password::PASSWORD_RESET
+            ? response()->json(['success' => true, 'message' => __($status)], Response::HTTP_OK)
+            : response()->json(['success' => false, 'message' => __($status)], Response::HTTP_BAD_REQUEST);
     }
 
+    /**
+     * Fetches the authenticated user's details.
+     *
+     * @return UserResource
+     */
     public function getUser()
     {
         return new UserResource(Auth::user());

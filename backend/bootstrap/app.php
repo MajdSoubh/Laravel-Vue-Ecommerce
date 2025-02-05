@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\SetLocale;
 use App\Http\Middleware\TrackUser;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -19,7 +20,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'guest' => App\Http\Middleware\Guest::class,
             'auth' => App\Http\Middleware\Auth::class
         ]);
-        $middleware->append(TrackUser::class);
+
+        $middleware->append([SetLocale::class, TrackUser::class]);
     })
     ->withExceptions(function (Exceptions $exceptions)
     {

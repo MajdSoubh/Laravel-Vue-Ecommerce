@@ -10,12 +10,17 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ProductController extends Controller
 {
-
+    /**
+     * Display a paginated list of published product.
+     *
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     */
     public function index()
     {
         $search = request('search', '');
         $perPage = request('per_page', '10');
         $categories = request('categories', false);
+
         $products = Product::published()
             ->where('title', 'like', "%{$search}%")
             ->when($categories, function ($query) use ($categories)
@@ -43,7 +48,10 @@ class ProductController extends Controller
     }
 
     /**
-     * Return the requested product by id or by slug
+     * Display the specified product by ID or slug.
+     *
+     * @param mixed $product The ID or slug of the product.
+     * @return \App\Http\Resources\Product\ProductResource|\Illuminate\Http\JsonResponse
      */
     public function show($product)
     {
@@ -54,13 +62,12 @@ class ProductController extends Controller
         }
         else
         {
-
             $result = Product::where('slug', $product)->first();
         }
 
         if (is_null($result))
         {
-            return response()->json(['message' => 'No product exists with the provided data'], Response::HTTP_NOT_FOUND);
+            return response()->json(['message' => __('product.not_found')], Response::HTTP_NOT_FOUND);
         }
 
         return new ProductResource($result);

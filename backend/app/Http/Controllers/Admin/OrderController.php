@@ -46,15 +46,6 @@ class OrderController extends Controller
             );
         }
 
-        // Check if the authenticated user has permission to access the order
-        if ($order->created_by != request()->user()->id)
-        {
-            return response()->json(
-                ['message' => __('order.unauthorized')],
-                Response::HTTP_UNAUTHORIZED
-            );
-        }
-
         return new OrderResource($order);
     }
 }

@@ -31,6 +31,9 @@ class StripeWebhookController extends Controller
     /**
      * Handles incoming Stripe webhook events.
      * Verifies the event signature and processes the event type.
+     *
+     * @param Request $request The incoming HTTP request.
+     * @return \Illuminate\Http\Response
      */
     public function handleWebhook(Request $request)
     {
@@ -48,8 +51,8 @@ class StripeWebhookController extends Controller
         }
         catch (SignatureVerificationException $e)
         {
-            Log::error('Stripe webhook signature verification failed.');
-            return response('Invalid signature', 400);
+            Log::error(__('stripe.signature_verification_failed'));
+            return response(__('stripe.invalid_signature'), 400);
         }
 
         // Handle the event
@@ -61,15 +64,17 @@ class StripeWebhookController extends Controller
                 break;
 
             default:
-                Log::info('Unhandled event type: ' . $event->type);
+                Log::info(__('stripe.unhandled_event', ['type' => $event->type]));
         }
 
-        return response('Webhook received', 200);
+        return response(__('stripe.webhook_received'), 200);
     }
 
     /**
      * Processes a successful payment event.
      * Updates payment and order status, decreases product quantities, and clears the user's cart.
+     *
+     * @param object $paymentIntent The payment intent object from Stripe.
      */
     private function handlePaymentSucceeded($paymentIntent)
     {
@@ -82,7 +87,7 @@ class StripeWebhookController extends Controller
 
             if (!$sessionID)
             {
-                throw new \Exception('Session ID not found in payment intent metadata.');
+                throw new \Exception(__('stripe.session_id_not_found'));
             }
 
             // Find the payment record
@@ -92,7 +97,7 @@ class StripeWebhookController extends Controller
 
             if (!$payment)
             {
-                throw new NotFoundHttpException('Payment not found.');
+                throw new NotFoundHttpException(__('stripe.payment_not_found'));
             }
 
             // Update payment and order status if payment is pending
@@ -114,17 +119,19 @@ class StripeWebhookController extends Controller
 
             DB::commit();
 
-            Log::info('Payment succeeded and processed successfully: ' . $paymentIntent->id);
+            Log::info(__('stripe.payment_succeeded', ['id' => $paymentIntent->id]));
         }
         catch (\Exception $e)
         {
             DB::rollBack();
-            Log::error('Error processing payment succeeded webhook: ' . $e->getMessage());
+            Log::error(__('stripe.payment_processing_error', ['message' => $e->getMessage()]));
         }
     }
 
     /**
      * Updates the payment and associated order status to "Paid".
+     *
+     * @param Payment $payment The payment to update.
      */
     private function changePaymentAndOrderStatusToPaid(Payment $payment)
     {

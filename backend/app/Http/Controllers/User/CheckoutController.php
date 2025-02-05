@@ -7,6 +7,7 @@ use App\Enums\PaymentStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\Checkout\CheckoutRequest;
 use App\Contracts\ProductRepositoryInterface;
+use App\Events\CartEvent;
 use App\Models\Cart;
 use App\Models\Payment;
 use Illuminate\Http\Request;
@@ -69,7 +70,9 @@ class CheckoutController extends Controller
             }
 
             // Empty user Cart.
-            Cart::where('user_id', $payment->createdBy->id)->delete();
+            $userId = $payment->createdBy->id;
+            Cart::where('user_id', $userId)->delete();
+            CartEvent::dispatch($userId, 'clear');
 
             return response()->json(['message' => "Order has been completed"], Response::HTTP_OK);
         }

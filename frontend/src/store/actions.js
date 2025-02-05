@@ -300,24 +300,17 @@ const actions = {
       return axios
         .put(`/cart`, { product_id, quantity: newQuantity })
         .then((response) => {
-          commit("updateCart", { product_id, quantity: newQuantity });
+          commit("updateCart", response.data.data);
           return response;
         });
     }
   },
 
   async removeItemFromCart({ commit }, item_id) {
-    return axios
-      .delete(`/cart/${item_id}`)
-      .then((response) => {
-        commit("removeItemFromCart", item_id);
-        return response;
-      })
-      .catch(({ response }) => {
-        if (response.status == 401) {
-          commit("removeItemFromCart", item_id);
-        }
-      });
+    return axios.delete(`/cart/${item_id}`).then((response) => {
+      commit("removeItemFromCart", item_id);
+      return response;
+    });
   },
 
   // Orders (user)

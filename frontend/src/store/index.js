@@ -19,7 +19,7 @@ const store = createStore({
     cartItems: [],
   },
   getters: {
-    async cartItems(state) {
+    cartItems(state) {
       return state.cartItems.length
         ? state.cartItems
         : JSON.parse(document.cookie.split("=")[1] || "[]");

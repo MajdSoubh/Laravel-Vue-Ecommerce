@@ -64,11 +64,11 @@
                   </div>
                 </div>
                 <div class="flex flex-1 items-end justify-between text-sm">
-                  <p class="text-gray-500">Qty {{ item.requestedQuantity }}</p>
+                  <p class="text-gray-500">Qty {{ item.quantity }}</p>
 
                   <div class="flex gap-2">
                     <button
-                      @click="updateCart(item.id, 1)"
+                      @click="updateCart(item.product_id, 1)"
                       type="button"
                       class="transition-all font-medium text-purple-500 border border-purple-400 rounded-lg hover:bg-purple-500 hover:text-white"
                     >
@@ -84,7 +84,7 @@
                       </svg>
                     </button>
                     <button
-                      @click="updateCart(item.id, -1)"
+                      @click="updateCart(item.product_id, -1)"
                       type="button"
                       class="transition-all font-medium text-purple-500 border border-purple-400 rounded-lg hover:bg-purple-500 hover:text-white"
                     >
@@ -102,7 +102,7 @@
                       </svg>
                     </button>
                     <button
-                      @click="removeItemFromCart(item.id)"
+                      @click="removeItemFromCart(item.product_id)"
                       type="button"
                       class="transition-all font-medium text-purple-500 border border-purple-400 rounded-lg hover:bg-purple-500 hover:text-white"
                     >
@@ -144,7 +144,7 @@
 </template>
 
 <script setup>
-import { inject, onMounted, ref, watch } from "vue";
+import { inject, onMounted, ref, watch, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import Spinner from "../../components/Spinner.vue";
@@ -152,7 +152,7 @@ import Spinner from "../../components/Spinner.vue";
 const emits = defineEmits(["toggle"]);
 const router = useRouter();
 const { show } = defineProps(["show"]);
-const items = ref([]);
+const items = computed(() => store.getters.cartItems);
 const totalPrice = ref(0);
 const store = useStore();
 const updateCart = inject("updateCart");
@@ -160,43 +160,30 @@ const removeItemFromCart = inject("removeItemFromCart");
 const loading = ref(true);
 
 onMounted(async () => {
-  // Fetch cart data from the server
+  loading.value = true;
+
   await fetchCartItems();
-  getItems();
+
+  loading.value = false;
 });
 
 function fetchCartItems() {
-  return store
-    .dispatch("fetchCartItems")
-    .then((response) => {})
-    .catch((exception) => {});
+  return store.dispatch("fetchCartItems");
 }
+store.watch(
+  (state) => state.cartItems,
+  (cartItems) => {
+    calculateTotalPrice(cartItems);
+  },
+  { deep: true }
+);
 
-async function getItems() {
-  loading.value = true;
-  // Init the Total Price
-  let price = 0;
-
-  // Get cartItems from the Store (cookie and last server cart requested)
-  let cartItems = await store.getters.cartItems;
-
-  items.value = await Promise.all(
-    cartItems.map(async (item) => {
-      return await store
-        .dispatch("fetchProductForUser", { id: item.product_id })
-        .then((response) => {
-          let product = response.data;
-          product.requestedQuantity = item.quantity;
-          price += product.price * item.quantity;
-          return product;
-        });
-    })
-  );
-
-  // Update the Total Price
-  totalPrice.value = Math.round(price);
-
-  loading.value = false;
+function calculateTotalPrice(cartItems) {
+  let _totalPrice = 0;
+  cartItems.map((item) => {
+    _totalPrice += item.price;
+  });
+  totalPrice.value = Math.round(_totalPrice);
 }
 
 function handleCheckout() {
@@ -227,14 +214,6 @@ function handleCheckout() {
       });
     });
 }
-
-// Watch cartItems
-store.watch(
-  (state, getters) => state.cartItems,
-  async () => {
-    getItems();
-  }
-);
 
 // Close the Cart menu when a click happened outside the Cart container
 document.body.addEventListener("click", (event) => {

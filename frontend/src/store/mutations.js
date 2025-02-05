@@ -36,23 +36,35 @@ export function setCart(state, data = []) {
   state.cartItems = data.map((item) => ({
     product_id: item.product_id,
     quantity: item.quantity,
+    price: item.product.price * item.quantity,
+    title: item.product.title,
+    images: item.product.images,
   }));
 
   // Update the  cart Items cookie
   document.cookie = "cartItems=" + JSON.stringify(state.cartItems) + ";";
 }
 
-export async function updateCart(state, { product_id, quantity }) {
+export async function updateCart(state, updatedCartItem) {
   let cartItems = JSON.parse((await document.cookie.split("=")[1]) || "[]");
-  let item = cartItems.find((item) => item.product_id == product_id);
+  let item = cartItems.find(
+    (item) => item.product_id == updatedCartItem.product_id
+  );
 
-  // If item already exists increase it's quantity
+  // If item already exists increase it's quantity and price
   if (item) {
-    item.quantity = quantity;
+    item.quantity = updatedCartItem.quantity;
+    item.price = updatedCartItem.product.price * updatedCartItem.quantity;
   }
   // If not exists add it
-  else if (quantity > 0) {
-    cartItems.push({ product_id, quantity });
+  else if (updatedCartItem.quantity > 0) {
+    cartItems.push({
+      product_id: updatedCartItem.product_id,
+      quantity: updatedCartItem.quantity,
+      price: updatedCartItem.product.price * updatedCartItem.quantity,
+      title: updatedCartItem.product.title,
+      images: updatedCartItem.product.images,
+    });
   }
 
   // Update the  cart Items cookie

@@ -33,31 +33,26 @@ window.Echo = new Echo({
     };
   },
 });
+
 // Subscribe to user channel and listen to all events related to it.
 store.watch(
   (state) => state.user,
   (user) => {
-    if (user.token) {
-      window.Echo.private(`user.${user.data.id}`).listen(
-        ".notification",
-        (event) => {
-          store.commit("notify", {
-            type: event.type,
-            message: event.message,
-          });
+    window.Echo.private(`user.${user.token ? user.data.id : user.uniqueID}`)
+      .listen(".notification", (event) => {
+        store.commit("notify", {
+          type: event.type,
+          message: event.message,
+        });
+      })
+      .listen(".cart", (event) => {
+        if (event.action === "overwrite") store.commit("setCart", event.data);
+        else if (event.action === "merge")
+          store.commit("updateCart", event.data);
+        else if (event.action === "clear") {
+          store.commit("setCart", []);
         }
-      );
-    } else if (user.uniqueID) {
-      window.Echo.channel(`user.${user.uniqueID}`).listen(
-        ".notification",
-        (event) => {
-          store.commit("notify", {
-            type: event.type,
-            message: event.message,
-          });
-        }
-      );
-    }
+      });
   },
   { deep: true }
 );

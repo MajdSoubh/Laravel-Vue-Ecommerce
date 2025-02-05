@@ -2,33 +2,77 @@
 
 namespace App\Services;
 
-use App\Repositories\UserCartRepository;
+use App\Models\Cart;
+use Illuminate\Support\Collection;
 
 class CartService
 {
-
-    public function __construct(private UserCartRepository $cartRepository)
-    {
-    }
-
     /**
-     * Set user's cart items.
+     * Update or create multiple cart items for a user.
+     *
+     * @param int $userId User ID.
+     * @param array $items Array of items with `product_id` and `quantity`.
+     * @return Collection Collection of updated/created Cart models.
      */
-    public function setCartItems(int $userId, array $items): array
+    public function setFullCart(int $userId, array $items): Collection
     {
-        $result = [];
+        $result = collect();
 
         foreach ($items as $item)
         {
-            $result[] = $this->cartRepository->updateOrAddItem($userId, $item['product_id'], $item['quantity']);
+            $cartItem  = Cart::updateOrCreate(
+                [
+                    'user_id' => $userId,
+                    'product_id' => $item['product_id'],
+                ],
+                [
+                    'quantity' => $item['quantity'],
+                ]
+            );
+            $result->push($cartItem);
         }
 
         return $result;
     }
 
-    public function updateCartItem(int $userId,  int $productId, int $quantity): array
+    /**
+     * Update or create a single cart item for a user.
+     *
+     * @param int $userId User ID.
+     * @param int $productId Product ID.
+     * @param int $quantity Product quantity.
+     * @return Cart Updated/created Cart model.
+     */
+    public function updateCartItem(int $userId,  int $productId, int $quantity): Cart
     {
-        $result = $this->cartRepository->updateOrAddItem($userId, $productId, $quantity);
+        $result = Cart::updateOrCreate(
+            [
+                'user_id' => $userId,
+                'product_id' => $productId,
+            ],
+            [
+                'quantity' => $quantity,
+            ]
+        );
+
+        return $result;
+    }
+
+    /**
+     * Remove item from the cart.
+     *
+     * @param int $userId User ID.
+     * @param int $productId Product ID.
+     * @return Cart removed Cart model.
+     */
+    public function removeItem(int $userId, int $productId): Cart
+    {
+        $result = Cart::where(['user_id' => $userId, 'product_id' => $productId])
+            ->with(['product' => fn ($q) => $q->select('id', 'title')])
+            ->firstOrFail();
+
+
+        $result->delete();
 
         return $result;
     }

@@ -2,101 +2,88 @@
 
 namespace App\Http\Controllers\User;
 
-use App\Events\Notify;
+use App\Events\CartEvent;
+use App\Events\Notification;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\Cart\StoreRequest;
 use App\Http\Requests\User\Cart\UpdateRequest;
+use App\Http\Resources\Cart\CartResource;
+use App\Http\Resources\Product\ProductResource;
+use App\Models\Cart;
 use App\Models\Product;
+use App\Services\CartService;
 use Illuminate\Support\Facades\Auth;
-use Symfony\Component\HttpFoundation\Response;
 
 class CartController extends Controller
 {
 
+    public function __construct(protected CartService $cartService)
+    {
+    }
+
+    /**
+     * Get authenticated user's cart with products
+     */
     public function getCurrentUserCart()
     {
-        /** @var \App\Models\User $user */
-        $user = Auth::User();
-        $cart = $user->cart()->get();
+        $cart =  auth()->user()->cart()->with('product')->get();
 
-        return response()->json($cart, Response::HTTP_OK);
+        return CartResource::collection($cart);
     }
 
+    /**
+     * Replace entire cart contents
+     */
     public function setCart(StoreRequest $request)
     {
-        /** @var \App\Models\User $user */
         $user = Auth::user();
 
-        foreach ($request->input('items') as $item)
-        {
-            $cartItem = $user->cart()->where('product_id', $item['product_id'])->first();
-            if ($cartItem)
-            {
+        $result = $this->cartService->setFullCart($user->id,  $request->validated('items'));
 
-                $cartItem->quantity = $item['quantity'];
-                $cartItem->update();
-            }
-            else
-            {
+        $cartIds = $result->pluck('id');
+        $cartItems = Cart::whereIn('id', $cartIds)->with('product')->get();
 
-                $cartItem =  $user->cart()->create(['product_id' => $item['product_id'], 'quantity' => $item['quantity']]);
-            }
-        }
+        CartEvent::dispatch(auth()->user()->id, 'overwrite', $cartItems->toArray());
+        Notification::dispatch(__('cart.uploaded'), 'success');
 
-        Notify::dispatch("The shopping cart has been stored successfully.", 'success');
-
-        return response()->json(['data' => $cartItem->toArray()]);
+        return CartResource::collection($cartItems);
     }
 
+    /**
+     * Update specific cart item quantity
+     */
     public function updateCart(UpdateRequest $request)
     {
-        $productId = $request->input('product_id');
-        $quantity = $request->input('quantity');
+        $validated = $request->validated();
 
-        // Retrieve the product.
-        $product = Product::select(['id', 'title', 'price'])->whereId($productId)->first();
-
-        // If user is authenticated update his cart
-        /** @var \App\Models\User $user */
-        $user = auth('sanctum')->user();
-
-        if ($user)
+        // Update user's cart if authenticated otherwise the cart is updated in the client-side.
+        if (auth()->check())
         {
-            $cartItem = $user->cart()->where('product_id', $productId)->first();
-
-            // If the Product already exists on the user's cart update it's quantity.
-            if ($cartItem)
-            {
-                $cartItem->quantity = $quantity;
-                $cartItem->update();
-            }
-            else
-            {
-                $cartItem =  $user->cart()->create($request->validated());
-            }
-
-            Notify::dispatch("{$product->title} quantity has been updated successfully", 'success', $product->toArray());
+            $this->cartService->updateCartItem(auth()->user()->id, $validated['product_id'], $validated['quantity']);
         }
 
+        $product = new ProductResource(Product::findOrFail($validated['product_id']));
 
+        $cartItem = array_merge(
+            ['product_id' => $validated['product_id'], 'quantity' => $validated['quantity']],
+            ['product' => $product]
+        );
 
-        // If user not authenticated and quantity available send notification.
-        Notify::dispatch("{$product->title} quantity has been updated successfully", 'success', $product->toArray());
+        CartEvent::dispatch(auth()->user()->id, 'merge', $cartItem);
+        Notification::dispatch(__('cart.updated', ['product' => $cartItem['product']['title']]), 'success');
+
+        return response()->json(['success' => true, 'data' => $cartItem]);
     }
 
-    public function delete(string $productId)
+    /**
+     * Remove a product from the user's cart.
+     */
+    public function delete(int $productId)
     {
+        $cartItem = $this->cartService->removeItem(auth()->user()->id, $productId);
 
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
-        $item = $user->cart()->where('product_id', $productId)->first();
+        Notification::dispatch(__('cart.removed', ['product' => $cartItem->product->title]), 'success');
 
-        // Retrieve the product.
-        $product = Product::select(['id', 'title'])->whereId($productId)->first();
-
-        $item->delete();
-
-        // send notification.
-        Notify::dispatch("{$product->title} has been removed successfully", 'success');
+        return response()->json(['success' => true, 'message' => __('cart.removed', ['product' => $cartItem->product->title])]);
     }
 }

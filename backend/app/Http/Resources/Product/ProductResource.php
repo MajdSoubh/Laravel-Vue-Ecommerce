@@ -24,7 +24,7 @@ class ProductResource extends JsonResource
             "created_at" => $this->created_at,
             "updated_at" => $this->updated_at,
             "images" => $this->images,
-            "categories" => $this->categories,
+            "categories" => $this->whenLoaded('categories'),
             $this->mergeWhen(($request->user() && $request->user()->is_admin), [
                 "published" => $this->published,
                 "created_by" => $this->created_by,

@@ -78,7 +78,7 @@ Route::group(['as' => 'user.', 'middleware' => 'throttle:80,1'], function ()
     });
 
     // Public Routes
-    Route::get('/categories', [UserCategoryController::class, 'index']);
+    Route::get('/categories', UserCategoryController::class);
     Route::put('/cart', [CartController::class, 'updateCart']);
     Route::get('/products', [UserProductController::class, 'index']);
     Route::get('/products/{product}', [UserProductController::class, 'show']);

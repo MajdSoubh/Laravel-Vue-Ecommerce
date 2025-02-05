@@ -9,6 +9,8 @@ use Stripe\Exception\SignatureVerificationException;
 use Illuminate\Support\Facades\Log;
 use App\Models\Payment;
 use App\Enums\PaymentStatus;
+use App\Events\CartEvent;
+use App\Events\Notification;
 use App\Models\Cart;
 use App\Repositories\ProductRepository;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -18,11 +20,18 @@ class StripeWebhookController extends Controller
 {
     protected $productRepository;
 
+    /**
+     * Constructor to inject ProductRepository dependency.
+     */
     public function __construct(ProductRepository $productRepository)
     {
         $this->productRepository = $productRepository;
     }
 
+    /**
+     * Handles incoming Stripe webhook events.
+     * Verifies the event signature and processes the event type.
+     */
     public function handleWebhook(Request $request)
     {
         $payload = $request->getContent();
@@ -58,7 +67,11 @@ class StripeWebhookController extends Controller
         return response('Webhook received', 200);
     }
 
-    protected function handlePaymentSucceeded($paymentIntent)
+    /**
+     * Processes a successful payment event.
+     * Updates payment and order status, decreases product quantities, and clears the user's cart.
+     */
+    private function handlePaymentSucceeded($paymentIntent)
     {
         try
         {
@@ -94,8 +107,10 @@ class StripeWebhookController extends Controller
                 }
             }
 
-            // Empty the user's cart
-            Cart::where('user_id', $payment->createdBy->id)->delete();
+            // Empty user's cart.
+            $userId = $payment->createdBy->id;
+            Cart::where('user_id', $userId)->delete();
+            CartEvent::dispatch($userId, 'clear');
 
             DB::commit();
 
@@ -108,14 +123,17 @@ class StripeWebhookController extends Controller
         }
     }
 
-    protected function changePaymentAndOrderStatusToPaid(Payment $payment)
+    /**
+     * Updates the payment and associated order status to "Paid".
+     */
+    private function changePaymentAndOrderStatusToPaid(Payment $payment)
     {
         // Update payment status to Paid
         $payment->status = PaymentStatus::Paid;
         $payment->save();
 
         // Update associated order status to Paid
-        $payment->order->status = OrderStatus::Paid; // Assuming you have an OrderStatus enum
+        $payment->order->status = OrderStatus::Paid;
         $payment->order->save();
     }
 }

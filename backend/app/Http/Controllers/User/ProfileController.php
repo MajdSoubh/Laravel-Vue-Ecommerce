@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\User;
 
-use App\Events\Notify;
+use App\Events\Notification;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\Profile\UpdateDetailsRequest;
 use App\Http\Requests\User\Profile\UpdatePasswordRequest;
@@ -31,7 +31,7 @@ class ProfileController extends Controller
         $user->password = $data['new_password'];
         $user->update();
 
-        Notify::dispatch("The password has been updated", 'success');
+        Notification::dispatch("The password has been updated", 'success');
     }
 
     public function getCountries()
@@ -59,7 +59,7 @@ class ProfileController extends Controller
         ]);
         $user->update();
 
-        Notify::dispatch("User details has been updated", 'success');
+        Notification::dispatch("User details has been updated", 'success');
     }
     public function getDetails()
     {

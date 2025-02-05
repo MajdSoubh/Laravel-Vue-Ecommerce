@@ -27,10 +27,9 @@ class StoreRequest extends FormRequest
 
 
         return [
-            'items' => "required|array",
-            'items' => ["required", "bail",  new BulkProductExistenceChecker, new BulkProductQuantityChecker],
             'items.*.quantity' => ['required', 'bail', 'integer', 'min:1'],
             'items.*.product_id' => ['required', 'bail', 'integer', 'min:1'],
+            'items' => ["required", "array", "bail",  new BulkProductExistenceChecker, new BulkProductQuantityChecker],
         ];
     }
 }

@@ -2,7 +2,8 @@
 
 namespace App\Http\Requests\User\Cart;
 
-use App\Rules\ProductQuantityChecker;
+use App\Rules\BulkProductExistenceChecker;
+use App\Rules\BulkProductQuantityChecker;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateRequest extends FormRequest
@@ -15,6 +16,12 @@ class UpdateRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation()
+    {
+        $this->merge([
+            'items' => [['product_id' => $this->input('product_id'), 'quantity' => $this->input('quantity')]],
+        ]);
+    }
     /**
      * Get the validation rules that apply to the request.
      *
@@ -23,15 +30,9 @@ class UpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'product_id' => 'required|exists:products,id',
-            'quantity' => ['required', 'integer', 'min:1', new ProductQuantityChecker($this->product_id, $this->quantity)]
-        ];
-    }
-
-    public function messages()
-    {
-        return [
-            'product_id.exists' => "This product is no longer available",
+            'quantity' => ['required', 'bail', 'integer', 'min:1'],
+            'product_id' => ['required', 'bail', 'integer', 'min:1'],
+            'items' => ["bail",  new BulkProductExistenceChecker, new BulkProductQuantityChecker],
         ];
     }
 }

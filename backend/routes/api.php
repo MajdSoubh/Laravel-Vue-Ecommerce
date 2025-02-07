@@ -9,7 +9,7 @@ use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\ReportController;
-
+use App\Http\Controllers\StripeWebhookController;
 // User
 use App\Http\Controllers\User\CategoryController as UserCategoryController;
 use App\Http\Controllers\User\ProductController as UserProductController;
@@ -17,7 +17,6 @@ use App\Http\Controllers\User\OrderController as UserOrderController;
 use App\Http\Controllers\User\ProfileController as UserProfileController;
 use App\Http\Controllers\User\CartController;
 use App\Http\Controllers\User\CheckoutController;
-use App\Http\Controllers\User\StripeWebhookController;
 use Illuminate\Support\Facades\Broadcast;
 
 // Include Auth Routes
@@ -83,5 +82,7 @@ Route::group(['as' => 'user.', 'middleware' => 'throttle:80,1'], function ()
     Route::get('/products', [UserProductController::class, 'index']);
     Route::get('/products/{product}', [UserProductController::class, 'show']);
     Route::post('/payments/success', [CheckoutController::class, 'success']);
+
+
     Route::post('/stripe/webhook', [StripeWebhookController::class, 'handleWebhook']);
 });

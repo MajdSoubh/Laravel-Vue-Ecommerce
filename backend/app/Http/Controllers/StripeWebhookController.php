@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\Log;
 use App\Models\Payment;
 use App\Enums\PaymentStatus;
 use App\Events\CartEvent;
-use App\Events\Notification;
 use App\Models\Cart;
 use App\Repositories\ProductRepository;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;

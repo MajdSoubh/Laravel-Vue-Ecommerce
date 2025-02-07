@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\User;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Facades\Hash;
@@ -56,6 +57,9 @@ final readonly class AuthService
         ]);
 
         $token = $user->createToken('main')->plainTextToken;
+
+
+        event(new Registered($user));
 
         return ['user' => $user, 'token' => $token];
     }

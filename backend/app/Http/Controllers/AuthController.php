@@ -6,11 +6,8 @@ use App\Enums\UserTypes;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Resources\User\UserResource;
-use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\ForgetPasswordRequest;
-use App\Http\Requests\Auth\ResetPasswordRequest;
 use App\Services\AuthService;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -78,44 +75,6 @@ class AuthController extends Controller
         $this->authService->logout();
 
         return response()->json(['success' => true], Response::HTTP_OK);
-    }
-
-    /**
-     * Sends a password reset link to the user's email.
-     *
-     * @param ForgetPasswordRequest $request The request containing the user's email.
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function forgetPassword(ForgetPasswordRequest $request)
-    {
-        $status = $this->authService->sendResetLink($request->only('email'), $request->resetURL);
-
-        return $status === Password::RESET_LINK_SENT
-            ? response()->json(['success' => true, 'message' => __($status)], Response::HTTP_OK)
-            : response()->json(['success' => false, 'message' => __($status)], Response::HTTP_BAD_REQUEST);
-    }
-
-    /**
-     * Resets the user's password.
-     *
-     * @param ResetPasswordRequest $request The request containing the new password.
-     * @param string|null $token The password reset token.
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function resetPassword(ResetPasswordRequest $request, $token = null)
-    {
-        $_token = $token ? $token : $request->token;
-        $credentials = $request->only([
-            "email",
-            "password",
-            "password_confirmation"
-        ]) + ["token" => $_token];
-
-        $status = $this->authService->resetPassword($credentials);
-
-        return $status === Password::PASSWORD_RESET
-            ? response()->json(['success' => true, 'message' => __($status)], Response::HTTP_OK)
-            : response()->json(['success' => false, 'message' => __($status)], Response::HTTP_BAD_REQUEST);
     }
 
     /**

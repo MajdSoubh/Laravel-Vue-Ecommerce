@@ -25,10 +25,12 @@ const actions = {
     });
   },
   forgetPassword({ commit }, data) {
-    console.log(data);
     // commit("forgetPassword", data.email);
+    const frontAppURL = import.meta.env.VITE_BASE_URL;
+    const resetURL = frontAppURL + "/Reset-password";
+
     return axios
-      .post("forget-password", { email: data.email })
+      .post("forget-password", { email: data.email, resetURL })
       .then((response) => response);
   },
   register({ commit, dispatch }, { user, isAdmin }) {

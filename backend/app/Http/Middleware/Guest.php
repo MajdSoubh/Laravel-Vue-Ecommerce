@@ -21,7 +21,7 @@ class Guest
 
             if (in_array(auth()->user()->type, $types))
             {
-                return response(['message' => 'You have to be signed out first'], Response::HTTP_BAD_REQUEST);
+                return response(['message' => __('auth.signout_required')], Response::HTTP_BAD_REQUEST);
             }
         }
         return $next($request);

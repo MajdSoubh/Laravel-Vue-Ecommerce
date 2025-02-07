@@ -21,7 +21,7 @@ class Auth
             auth()->shouldUse($guard);
             if (!in_array(auth()->user()->type, $types))
             {
-                return response(['message' => 'You don\'t have permissions'], Response::HTTP_UNAUTHORIZED);
+                return response(['message' => __('auth.permission_denied')], Response::HTTP_UNAUTHORIZED);
             }
             else
             {
@@ -30,7 +30,7 @@ class Auth
         }
         else
         {
-            return response(['message' => 'You are not signed in'], Response::HTTP_UNAUTHORIZED);
+            return response(['message' => __('auth.signin_required')], Response::HTTP_UNAUTHORIZED);
         }
     }
 }

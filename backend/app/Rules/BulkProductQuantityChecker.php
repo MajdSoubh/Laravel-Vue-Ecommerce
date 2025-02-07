@@ -2,7 +2,6 @@
 
 namespace App\Rules;
 
-use App\Events\Notify;
 use App\Models\Product;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;

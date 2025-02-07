@@ -4,7 +4,6 @@ namespace App\Rules;
 
 use App\Models\Category;
 use Closure;
-use Illuminate\Contracts\Validation\DataAwareRule;
 use Illuminate\Contracts\Validation\ValidationRule;
 
 class ParentCategoryChecker implements ValidationRule

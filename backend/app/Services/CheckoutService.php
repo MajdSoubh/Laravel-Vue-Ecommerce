@@ -17,11 +17,22 @@ class CheckoutService
     public function __construct(
         protected OrderRepositoryInterface $orderRepository,
         protected PaymentRepositoryInterface $paymentRepository,
-        protected ProductRepositoryInterface $productRepository
+        protected ProductRepositoryInterface $productRepository,
+        protected PaymentGatewayInterface $paymentGateway
     )
     {
     }
 
+    /**
+     * Processes the checkout for a user's cart.
+     *
+     * @param array $items Array of cart items, each containing 'product_id' and 'quantity'.
+     * @param string $successURL The URL to redirect to after successful payment.
+     * @param string $cancelURL The URL to redirect to if payment is canceled.
+     * @param int $userId The ID of the user initiating the checkout.
+     * @return string The payment gateway session URL where the user should be redirected.
+     * @throws \Exception If an error occurs during the checkout process.
+     */
     public function processCheckout(array $items, string $successURL, string $cancelURL, int $userId): string
     {
         $ids = array_column($items, 'product_id');
@@ -59,7 +70,7 @@ class CheckoutService
                 ];
             }
 
-            $session = app(PaymentGatewayInterface::class)->initiateCheckout($lineItems, $successURL, $cancelURL);
+            $session = $this->paymentGateway->initiateCheckout($lineItems, $successURL, $cancelURL);
 
             // Create Order
             $order = $this->orderRepository->createOrder([

@@ -40,7 +40,6 @@ let currentChannel = null;
 store.watch(
   (state) => state.user,
   (user) => {
-    console.log(user);
     if (currentChannel) {
       currentChannel.stopListening();
       window.Echo.leave(currentChannel.name);

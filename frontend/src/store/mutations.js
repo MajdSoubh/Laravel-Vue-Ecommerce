@@ -17,7 +17,6 @@ export function setToken(state, token) {
   }
 }
 export function setGuestID(state, guestID) {
-  console.log(guestID);
   state.user.guestID = guestID;
 }
 

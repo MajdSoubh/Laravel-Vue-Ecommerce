@@ -4,12 +4,7 @@ namespace App\Services;
 
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
-use Illuminate\Auth\Notifications\ResetPassword;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Lang;
-use Illuminate\Support\Facades\Password;
-use Illuminate\Support\Str;
 
 /**
  * AuthService handles authentication-related operations such as login, registration, logout, and password reset.
@@ -81,58 +76,5 @@ final readonly class AuthService
         }
 
         return false;
-    }
-
-    /**
-     * Sends a password reset link to the user's email.
-     *
-     * @param array $credentials User credentials.
-     * @param string $resetURL The base URL for the password reset link.
-     * @return string Returns the status of the password reset link sending process.
-     */
-    public function sendResetLink(array $credentials, string $resetURL)
-    {
-        $this->buildMailMessage($resetURL);
-
-        $status = Password::sendResetLink($credentials);
-
-        return $status;
-    }
-
-    /**
-     * Resets the user's password.
-     *
-     * @param array $credentials Password reset credentials.
-     * @param bool $logoutAllDevices Whether to log the user out from all devices.
-     * @return string Returns the status of the password reset process.
-     */
-    public function resetPassword(array $credentials)
-    {
-        $status = Password::reset($credentials, function (User $user, $password)
-        {
-            $user->password = Hash::make($password);
-            $user->save();
-        });
-        return $status;
-    }
-
-    /**
-     * Builds the email message for the password reset notification.
-     *
-     * @param string $resetURL The base URL for the password reset link.
-     * @return void
-     */
-    protected function buildMailMessage(string $resetURL)
-    {
-        ResetPassword::toMailUsing(function ($notifiable, $token) use ($resetURL)
-        {
-            $url = Str::finish($resetURL, '/') . $token;
-
-            return (new MailMessage)->subject(Lang::get('Reset Password Notification'))
-                ->line(Lang::get('You are receiving this email because we received a password reset request for your account.'))
-                ->action(Lang::get('Reset Password'), $url)
-                ->line(Lang::get('This password reset link will expire in :count minutes.', ['count' => config('auth.passwords.' . config('auth.defaults.passwords') . '.expire')]))
-                ->line(Lang::get('If you did not request a password reset, no further action is required.'));
-        });
     }
 }

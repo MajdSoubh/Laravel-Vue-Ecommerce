@@ -8,7 +8,7 @@ const store = createStore({
       data: JSON.parse(sessionStorage.getItem("USER_DATA")),
       token: sessionStorage.getItem("TOKEN"),
       isAdmin: false,
-      uniqueID: null,
+      guestID: null,
     },
     notification: {
       show: false,

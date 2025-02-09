@@ -278,10 +278,21 @@ const actions = {
     }
   },
   fetchCartItems({ commit }) {
-    return axios.get("/cart").then((response) => {
-      commit("setCart", response.data);
-      return response;
-    });
+    return axios
+      .get("/cart")
+      .then((response) => {
+        commit("setCart", response.data);
+        return response;
+      })
+      .catch((e) => {
+        if (e.status === 401) {
+          console.log(
+            "Your cart only updated on your browser.\nPlease sign in so you cart will be in sync with our server."
+          );
+        } else {
+          throw e;
+        }
+      });
   },
   async updateCart({ commit, getters, dispatch }, { product_id, quantity }) {
     const obj = await getters.cartItems;
@@ -309,10 +320,22 @@ const actions = {
   },
 
   async removeItemFromCart({ commit }, item_id) {
-    return axios.delete(`/cart/${item_id}`).then((response) => {
-      commit("removeItemFromCart", item_id);
-      return response;
-    });
+    return axios
+      .delete(`/cart/${item_id}`)
+      .then((response) => {
+        commit("removeItemFromCart", item_id);
+        return response;
+      })
+      .catch((e) => {
+        if (e.status === 401) {
+          console.log(
+            "Your cart only updated on your browser.\nPlease sign in so you cart will be in sync with our server."
+          );
+          commit("removeItemFromCart", item_id);
+        } else {
+          throw e;
+        }
+      });
   },
 
   // Orders (user)

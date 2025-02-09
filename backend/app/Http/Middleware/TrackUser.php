@@ -19,17 +19,17 @@ class TrackUser
         $response = $next($request);
 
         // Check if the header exists
-        if ($request->headers->has('X-Unique-ID'))
+        if ($request->headers->has('X-Guest-ID'))
         {
             // Add the custom header only if it doesn't exist
-            $response->headers->set('X-Unique-ID', $request->header('X-Unique-ID'));
+            $response->headers->set('X-Guest-ID', $request->header('X-Guest-ID'));
         }
         else
         {
-            // Generate a new unique ID
-            $uniqueId = uniqid();
+            // Generate a new guest ID
+            $guestId = uniqid();
             // Add the custom header only if it doesn't exist
-            $response->headers->set('X-Unique-ID', $uniqueId);
+            $response->headers->set('X-Guest-ID', $guestId);
         }
 
         return $response;

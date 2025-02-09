@@ -34,25 +34,44 @@ window.Echo = new Echo({
   },
 });
 
+let currentChannel = null;
+
 // Subscribe to user channel and listen to all events related to it.
 store.watch(
   (state) => state.user,
   (user) => {
-    window.Echo.private(`user.${user.token ? user.data.id : user.uniqueID}`)
-      .listen(".notification", (event) => {
-        store.commit("notify", {
-          type: event.type,
-          message: event.message,
+    console.log(user);
+    if (currentChannel) {
+      currentChannel.stopListening();
+      window.Echo.leave(currentChannel.name);
+    }
+    if (user.token) {
+      currentChannel = window.Echo.private(`user.${user.data.id}`)
+        .listen(".notification", (event) => {
+          store.commit("notify", {
+            type: event.type,
+            message: event.message,
+          });
+        })
+        .listen(".cart", (event) => {
+          if (event.action === "overwrite") store.commit("setCart", event.data);
+          else if (event.action === "merge")
+            store.commit("updateCart", event.data);
+          else if (event.action === "clear") {
+            store.commit("setCart", []);
+          }
         });
-      })
-      .listen(".cart", (event) => {
-        if (event.action === "overwrite") store.commit("setCart", event.data);
-        else if (event.action === "merge")
-          store.commit("updateCart", event.data);
-        else if (event.action === "clear") {
-          store.commit("setCart", []);
+    } else if (user.guestID) {
+      currentChannel = window.Echo.channel(`guest.${user.guestID}`).listen(
+        ".notification",
+        (event) => {
+          store.commit("notify", {
+            type: event.type,
+            message: event.message,
+          });
         }
-      });
+      );
+    }
   },
   { deep: true }
 );

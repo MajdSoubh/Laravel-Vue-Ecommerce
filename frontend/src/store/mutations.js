@@ -16,8 +16,9 @@ export function setToken(state, token) {
     sessionStorage.removeItem("TOKEN");
   }
 }
-export function setUniqueID(state, uniqueID) {
-  state.user.uniqueID = uniqueID;
+export function setGuestID(state, guestID) {
+  console.log(guestID);
+  state.user.guestID = guestID;
 }
 
 export function forgetPassword(state, email) {}

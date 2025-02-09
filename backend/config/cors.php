@@ -25,7 +25,7 @@ return [
 
     'allowed_headers' => ['*'],
 
-    'exposed_headers' => ['X-Unique-ID'],
+    'exposed_headers' => ['X-Guest-ID'],
 
     'max_age' => 0,
 

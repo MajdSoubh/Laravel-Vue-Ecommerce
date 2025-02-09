@@ -12,8 +12,8 @@ const client = axios.create({
 client.interceptors.request.use((config) => {
   config.headers.Authorization = `Bearer ${store.state.user.token}`;
 
-  if (store.state.user.uniqueID) {
-    config.headers["X-Unique-ID"] = store.state.user.uniqueID;
+  if (store.state.user.guestID) {
+    config.headers["X-Guest-ID"] = store.state.user.guestID;
   }
 
   return config;
@@ -21,9 +21,9 @@ client.interceptors.request.use((config) => {
 
 client.interceptors.response.use(
   (config) => {
-    // Capture the uniqueId from the response headers
-    if (!store.state.user.uniqueID) {
-      store.commit("setUniqueID", config.headers["x-unique-id"]);
+    // Capture the guestID from the response headers
+    if (!store.state.user.guestID) {
+      store.commit("setGuestID", config.headers["x-guest-id"]);
     }
     return config;
   },

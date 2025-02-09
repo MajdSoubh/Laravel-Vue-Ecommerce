@@ -37,7 +37,7 @@ class Notification implements ShouldBroadcastNow
             return new PrivateChannel("user." . auth()->user()->id);
         else
         {
-            return new Channel("user." . request()->header('X-Unique-ID'));
+            return new Channel("guest." . request()->header('X-Guest-ID'));
         }
     }
 }

@@ -160,7 +160,8 @@ return [
     'url' => 'The :attribute field must be a valid URL.',
     'ulid' => 'The :attribute field must be a valid ULID.',
     'uuid' => 'The :attribute field must be a valid UUID.',
-
+    'invalid_product' => 'The selected product is invalid.',
+    'quantity_not_available' => 'The requested product is not available.',
     /*
     |--------------------------------------------------------------------------
     | Custom Validation Language Lines

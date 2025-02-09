@@ -2,6 +2,7 @@
 
 namespace App\Rules;
 
+use App\Events\Notification;
 use App\Models\Product;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
@@ -24,7 +25,8 @@ class BulkProductExistenceChecker implements ValidationRule
 
         if ($existingProductCount !== count($productIds))
         {
-            $fail('One or more selected products are invalid or unavailable.');
+            $fail(__('validation.invalid_product'));
+            Notification::dispatch(__('validation.invalid_product'), 'error');
         }
     }
 }

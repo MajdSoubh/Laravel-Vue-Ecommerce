@@ -2,6 +2,7 @@
 
 namespace App\Rules;
 
+use App\Events\Notification;
 use App\Models\Product;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
@@ -34,7 +35,8 @@ class BulkProductQuantityChecker implements ValidationRule
         {
             if ($existingProducts[$productId] < $totalRequestedQuantity)
             {
-                $fail('The requested quantity is not available');
+                $fail(__('validation.quantity_not_available'));
+                Notification::dispatch(__('validation.quantity_not_available'), 'error');
                 break;
             }
         }

@@ -18,6 +18,7 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(User::class, 'user_id');
             $table->foreignIdFor(Product::class, 'product_id');
+            $table->unique(['user_id', 'product_id']);
             $table->integer('quantity');
             $table->timestamps();
         });

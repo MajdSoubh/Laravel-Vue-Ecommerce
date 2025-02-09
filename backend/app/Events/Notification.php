@@ -33,8 +33,8 @@ class Notification implements ShouldBroadcastNow
      */
     public function broadcastOn(): Channel
     {
-        if (auth('sanctum')->user())
-            return new PrivateChannel("user." . auth('sanctum')->user()->id);
+        if (auth()->user())
+            return new PrivateChannel("user." . auth()->user()->id);
         else
         {
             return new Channel("user." . request()->header('X-Unique-ID'));

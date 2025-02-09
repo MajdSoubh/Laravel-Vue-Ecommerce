@@ -12,25 +12,26 @@ class CartService
      *
      * @param int $userId User ID.
      * @param array $items Array of items with `product_id` and `quantity`.
-     * @return Collection Collection of updated/created Cart models.
+     * @return Collection Collection of user's cart items.
      */
     public function setFullCart(int $userId, array $items): Collection
     {
-        $result = collect();
-
-        foreach ($items as $item)
+        $cartData = collect($items)->map(function ($item) use ($userId)
         {
-            $cartItem  = Cart::updateOrCreate(
-                [
-                    'user_id' => $userId,
-                    'product_id' => $item['product_id'],
-                ],
-                [
-                    'quantity' => $item['quantity'],
-                ]
-            );
-            $result->push($cartItem);
-        }
+            return [
+                'user_id' => $userId,
+                'product_id' => $item['product_id'],
+                'quantity' => $item['quantity'],
+            ];
+        })->toArray();
+
+        Cart::upsert(
+            $cartData,
+            ['user_id', 'product_id'],
+            ['quantity']
+        );
+
+        $result = Cart::with('product')->where('user_id', $userId)->get();
 
         return $result;
     }
@@ -54,6 +55,8 @@ class CartService
                 'quantity' => $quantity,
             ]
         );
+
+        $result->load('product');
 
         return $result;
     }

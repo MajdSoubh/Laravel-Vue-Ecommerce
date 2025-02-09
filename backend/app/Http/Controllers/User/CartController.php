@@ -8,10 +8,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\User\Cart\StoreRequest;
 use App\Http\Requests\User\Cart\UpdateRequest;
 use App\Http\Resources\Cart\CartResource;
-use App\Http\Resources\Product\ProductResource;
-use App\Models\Cart;
+use App\Http\Resources\Product\CartProductResource;
 use App\Models\Product;
 use App\Services\CartService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class CartController extends Controller
@@ -45,39 +45,75 @@ class CartController extends Controller
     public function setCart(StoreRequest $request)
     {
         $user = Auth::user();
-        $result = $this->cartService->setFullCart($user->id, $request->validated('items'));
-        $cartIds = $result->pluck('id');
-        $cartItems = Cart::whereIn('id', $cartIds)->with('product')->get();
+        $cartItems = $this->cartService->setFullCart($user->id, $request->validated('items'));
+        $cartItems = CartResource::collection($cartItems);
 
-        CartEvent::dispatch(auth()->user()->id, 'overwrite', $cartItems->toArray());
+        CartEvent::dispatch(auth()->user()->id, 'overwrite', $cartItems->toArray($request));
         Notification::dispatch(__('cart.uploaded'), 'success');
 
-        return CartResource::collection($cartItems);
+        return response()->json(['success' => true, 'data' => $cartItems]);
     }
 
     /**
-     * Update the quantity of a specific item in the authenticated user's cart.
+     * Check if the request cart items quantity is available and update user's cart if authenticated.
      *
-     * @param \App\Http\Requests\User\Cart\UpdateRequest $request Validated request containing product_id and quantity.
+     * This method handles updating the cart for both authenticated users and guests.
+     * If the user is authenticated, it delegates the logic to `updateUserCart`. Otherwise,
+     * it delegates the logic to `updateGuestCart`
+     *
+     * @param \App\Http\Requests\User\Cart\UpdateRequest $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function updateCart(UpdateRequest $request)
     {
-        $validated = $request->validated();
+        $data = $request->validated();
 
-        // Update user's cart if authenticated; otherwise, the cart is updated on the client-side.
-        if (auth()->check())
-        {
-            $this->cartService->updateCartItem(auth()->user()->id, $validated['product_id'], $validated['quantity']);
-        }
+        return auth()->check() ? $this->updateUserCart($data) : $this->updateGuestCart($data);
+    }
 
-        $product = new ProductResource(Product::findOrFail($validated['product_id']));
+    /**
+     * Update the cart for an authenticated user.
+     *
+     * This method updates the cart item in the database for the authenticated user, dispatches
+     * a cart event, and sends a notification about the update.
+     *
+     * @param array $data An array containing:
+     *        - product_id (int): The ID of the product to be updated in the cart.
+     *        - quantity (int): The new quantity of the product in the cart.
+     * @return \Illuminate\Http\JsonResponse
+     */
+    private function updateUserCart(array $data)
+    {
+        $cartItem = $this->cartService->updateCartItem(auth()->user()->id, $data['product_id'], $data['quantity']);
+
+        $cartItem = new CartResource($cartItem);
+
+        CartEvent::dispatch(auth()->user()->id, 'merge', $cartItem->toArray(resolve(Request::class)));
+
+        Notification::dispatch(__('cart.updated', ['product' => $cartItem['product']['title']]), 'success');
+
+        return response()->json(['success' => true, 'data' => $cartItem]);
+    }
+
+    /**
+     * Update the cart for a guest user.
+     *
+     * This method updates the cart for guest users by preparing the cart item data on the client side.
+     * It does not persist the cart data in the database but sends a notification about the update.
+     *
+     * @param array $data An array containing:
+     *        - product_id (int): The ID of the product to be updated in the cart.
+     *        - quantity (int): The new quantity of the product in the cart.
+     * @return \Illuminate\Http\JsonResponse
+     */
+    private function updateGuestCart(array $data)
+    {
+        $product = Product::findOrFail($data['product_id']);
         $cartItem = array_merge(
-            ['product_id' => $validated['product_id'], 'quantity' => $validated['quantity']],
-            ['product' => $product]
+            ['product_id' => $data['product_id'], 'quantity' => $data['quantity']],
+            ['product' => new CartProductResource($product)]
         );
 
-        CartEvent::dispatch(auth()->user()->id, 'merge', $cartItem);
         Notification::dispatch(__('cart.updated', ['product' => $cartItem['product']['title']]), 'success');
 
         return response()->json(['success' => true, 'data' => $cartItem]);

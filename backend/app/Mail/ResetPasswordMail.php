@@ -3,13 +3,14 @@
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Str;
 
-class ResetPasswordMail extends Mailable
+class ResetPasswordMail extends Mailable implements ShouldQueue
 {
+
     use Queueable, SerializesModels;
 
     public $token;
@@ -36,7 +37,7 @@ class ResetPasswordMail extends Mailable
     {
         $url = Str::finish($this->resetURL, '/') . $this->token;
 
-        return $this->subject(Lang::get('Reset Password Notification'))
+        return $this->subject(__('Reset Password Notification'))
             ->view('emails.reset_password')
             ->with([
                 'url' => $url,

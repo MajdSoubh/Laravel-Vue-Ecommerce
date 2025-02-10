@@ -41,7 +41,6 @@ store.watch(
   (state) => state.user,
   (user) => {
     if (currentChannel) {
-      currentChannel.stopListening();
       window.Echo.leave(currentChannel.name);
     }
     if (user.token) {

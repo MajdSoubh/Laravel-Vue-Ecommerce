@@ -4,14 +4,7 @@
   <Spinner size="16" v-if="loading" color="#a956cf" />
 
   <div v-else class="flex flex-col justify-between gap-4">
-    <!-- No items yet -->
-    <div
-      class="flex justify-center my-auto place-content-center"
-      v-if="products.length == 0"
-    >
-      No items found in the Store
-    </div>
-    <div v-else>
+    <div class="flex flex-col gap-3">
       <div class="flex flex-col gap-3 items-center justify-center">
         <!-- Categories -->
         <Categories v-model="params.categories" @change="fetchProducts" />
@@ -42,6 +35,13 @@
         </div>
       </div>
       <div
+        class="flex justify-center my-auto items-center grow place-content-center"
+        v-if="products.length == 0"
+      >
+        No items found in the Store
+      </div>
+      <div
+        v-else
         class="p-5 grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
       >
         <Product

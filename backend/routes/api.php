@@ -58,7 +58,7 @@ Route::group(['as' => 'user.', 'middleware' => 'throttle:80,1'], function ()
 
     // Authenticated Routes
     Route::group([
-        'middleware' => 'auth:sanctum,client',
+        'middleware' => ['auth:sanctum,client', 'verified'],
     ], function ()
     {
         Route::get('/cart', [CartController::class, 'getCurrentUserCart']);

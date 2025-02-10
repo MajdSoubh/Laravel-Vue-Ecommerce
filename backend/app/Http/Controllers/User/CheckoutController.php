@@ -41,7 +41,7 @@ class CheckoutController extends Controller
         $user = auth()->user();
 
         // Ensure the user has completed their profile shipment details
-        if (!isset($user->details->country) || !isset($user->details->address_1))
+        if (!isset($user->details->country_code) || !isset($user->details->address_1))
         {
             return response()->json(
                 ['message' => __('checkout.profile_incomplete')],

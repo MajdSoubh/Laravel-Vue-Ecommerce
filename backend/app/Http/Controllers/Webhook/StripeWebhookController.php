@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Webhook;
 
 use App\Enums\OrderStatus;
 use Illuminate\Http\Request;

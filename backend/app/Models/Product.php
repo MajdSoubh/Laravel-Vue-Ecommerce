@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Filters\ProductFilter;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
@@ -23,6 +24,11 @@ class Product extends Model
         return SlugOptions::create()
             ->generateSlugsFrom('title')
             ->saveSlugsTo('slug');
+    }
+
+    public function scopeFilter($query, array $filters)
+    {
+        return (new ProductFilter())->apply($query, $filters);
     }
 
     public function scopePublished(Builder $query)

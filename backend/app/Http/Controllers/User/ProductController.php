@@ -17,32 +17,13 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $search = request('search', '');
-        $perPage = request('per_page', '10');
-        $categories = request('categories', false);
-
         $products = Product::published()
-            ->where('title', 'like', "%{$search}%")
-            ->when($categories, function ($query) use ($categories)
-            {
-                return $query->whereHas('categories', function (Builder $query) use ($categories)
-                {
-                    // Return only activated category's products
-                    $query->where('active', true);
-
-                    // Else return only selected ones.
-                    return $query->whereIn('name', $categories)
-                        ->orWhereHas('mainCategory', function (Builder $query) use ($categories)
-                        {
-                            // Return only activated category's products
-                            $query->where('active', true);
-
-                            return $query->whereIn('name', $categories);
-                        });
-                });
-            })
-            ->orderBy('created_at', 'desc')
-            ->paginate($perPage);
+            ->filter([
+                'search' => request('search', ''),
+                'categories' => request('categories', [])
+            ])
+            ->orderByDesc('created_at')
+            ->paginate(request('per_page', 10));
 
         return ProductResource::collection($products);
     }
